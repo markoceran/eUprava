@@ -12,8 +12,31 @@ services:
       - ${GATEWAY_PORT}:${GATEWAY_PORT}
     depends_on:
       - tuzilastvo_service
+      - auth_service
     networks:
       - network
+
+  auth_service:
+    image: auth_service
+    container_name: auth_service
+    build:
+      context: .
+      dockerfile: ./auth_service/Dockerfile
+    restart: always
+    ports:
+      - ${AUTH_SERVICE_PORT}:${AUTH_SERVICE_PORT}
+    environment:
+      AUTH_DB_HOST: ${AUTH_DB_HOST}
+      AUTH_DB_PORT: ${AUTH_DB_PORT}
+      AUTH_SERVICE_PORT: ${AUTH_SERVICE_PORT}
+      SECRET_KEY: ${SECRET_KEY}
+      JAEGER_ADDRESS: ${JAEGER_ADDRESS}
+    depends_on:
+      auth_db:
+        condition: service_started
+    networks:
+      - network
+
 
   tuzilastvo_service:
     image: tuzilastvo_service
@@ -35,8 +58,6 @@ services:
         condition: service_started
     networks:
       - network
-    volumes:
-      - ./files:/usr/bin/files
 
 
   tuzilastvo_db:
@@ -46,6 +67,20 @@ services:
     networks:
       - network
 
+  auth_db:
+    image: mongo
+    container_name: auth_db
+    restart: on-failure
+    networks:
+      - network
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+    networks:
+      - network
 
 networks:
   network:

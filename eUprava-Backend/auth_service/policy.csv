@@ -1,0 +1,3 @@
+p, Unauthenticated, /dodajKorisnika, POST
+p, Unauthenticated, /dobaviKorisnike, GET
+p, Unauthenticated, /login, POST

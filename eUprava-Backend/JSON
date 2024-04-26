@@ -1,0 +1,14 @@
+DODAVANJE KORISNIKA
+{
+    "ime": "marko",
+    "prezime": "ceran",
+    "korisnickoIme": "marko",
+    "lozinka": "123",
+    "rola": "Gradjanin"
+}
+
+LOGIN
+{
+    "korisnickoIme":"marko",
+    "lozinka":"123"
+}

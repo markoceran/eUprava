@@ -9,7 +9,6 @@ import (
 	"os/signal"
 	"time"
 	"tuzilastvo_service/data"
-	"tuzilastvo_service/handlers"
 	"tuzilastvo_service/middlewares"
 )
 
@@ -32,7 +31,7 @@ func main() {
 	defer store.DisconnectMongo(timeoutContext)
 	store.Ping()
 
-	tuzilastvoHandler := handlers.NewTuzilastvoHandler(logger, store)
+	//tuzilastvoHandler := handlers.NewTuzilastvoHandler(logger, store)
 
 	//Initialize the router and add a middleware for all the requests
 	router := mux.NewRouter()

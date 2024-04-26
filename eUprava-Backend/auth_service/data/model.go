@@ -4,51 +4,7 @@ import (
 	"encoding/json"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"io"
-)
-
-type Kategorija string
-
-const (
-	A = "A"
-	B = "B"
-	C = "C"
-	D = "D"
-	F = "F"
-)
-
-type Rola string
-
-const (
-	Policajac         = "Policajac"
-	Gradjanin         = "Gradjanin"
-	GranicniSluzbenik = "GranicniSluzbenik"
-	Tuzioc            = "Tuzioc"
-	Istrazitelj       = "Istrazitelj"
-	Sudija            = "Sudija"
-)
-
-type Pol string
-
-const (
-	Muski  = "Muski"
-	Zenski = "Zenski"
-)
-
-type Tip string
-
-const (
-	LICNAKARTA  = "LICNAKARTA"
-	PASOS       = "PASOS"
-	SAOBRACAJNA = "SAOBRACAJNA"
-	VOZACKA     = "VOZACKA"
-)
-
-type Status string
-
-const (
-	POSLAT  = "POSLAT"
-	OBRADA  = "OBRADA"
-	ZAVRSEN = "ZAVRSEN"
+	"time"
 )
 
 type Korisnik struct {
@@ -104,29 +60,74 @@ type Saobracajna struct {
 	Istice      primitive.DateTime `bson:"istice,omitempty" json:"istice"`
 }
 
-type Zahtev struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Gradjanin Korisnik           `bson:"gradjanin,omitempty" json:"gradjanin"`
-	Datum     primitive.DateTime `bson:"datum,omitempty" json:"datum"`
-	Tip       Tip                `bson:"tip,omitempty" json:"tip"`
-	Status    Status             `bson:"status,omitempty" json:"status"`
+type Kategorija string
+
+const (
+	A = "A"
+	B = "B"
+	C = "C"
+	D = "D"
+	F = "F"
+)
+
+type Rola string
+
+const (
+	Policajac         = "Policajac"
+	Gradjanin         = "Gradjanin"
+	GranicniSluzbenik = "GranicniSluzbenik"
+	Tuzioc            = "Tuzioc"
+	Istrazitelj       = "Istrazitelj"
+	Sudija            = "Sudija"
+)
+
+type Pol string
+
+const (
+	Muski  = "Muski"
+	Zenski = "Zenski"
+)
+
+type Claims struct {
+	ID            primitive.ObjectID `bson:"_id" json:"id"`
+	KorisnickoIme string             `json:"korisnickoIme"`
+	Rola          Rola               `json:"rola"`
+	ExpiresAt     time.Time          `json:"expires_at"`
 }
 
-type NalogZaPracenje struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Gradjanin Korisnik           `bson:"gradjanin,omitempty" json:"gradjanin"`
-	Opis      string             `bson:"opis,omitempty" json:"opis"`
-	Datum     primitive.DateTime `bson:"datum,omitempty" json:"datum"`
+type Kredencijali struct {
+	KorisnickoIme string `bson:"korisnickoIme" json:"korisnickoIme"`
+	Lozinka       string `bson:"lozinka" json:"lozinka"`
 }
 
-//TODO: uraditi za ostale entitete ToJSON i FromJSON
+type Korisnici []*Korisnik
 
-func (o *LicnaKarta) ToJSON(w io.Writer) error {
+func (o *Korisnici) ToJSON(w io.Writer) error {
 	e := json.NewEncoder(w)
 	return e.Encode(o)
 }
 
-func (o *LicnaKarta) FromJSON(r io.Reader) error {
+func (o *Korisnici) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
+
+func (o *Korisnik) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *Korisnik) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
+
+func (o *Kredencijali) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *Kredencijali) FromJSON(r io.Reader) error {
 	d := json.NewDecoder(r)
 	return d.Decode(o)
 }
