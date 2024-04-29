@@ -83,16 +83,16 @@ type LicnaKarta struct {
 }
 
 type Pasos struct {
-	ID            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Dokument      Dokument           `bson:"dokument,omitempty" json:"dokument,omitempty"`
+	ID            primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	Dokument      *Dokument          `bson:"dokument,omitempty" json:"dokument,omitempty"`
 	Pol           Pol                `bson:"pol,omitempty" json:"pol"`
 	Drzavljanstvo string             `bson:"drzavljanstvo,omitempty" json:"drzavljanstvo"`
-	BrojPasosa    string             `bson:"brojPasosa,omitempty" json:"brojPasosa"`
+	BrojPasosa    string             `bson:"brojPasosa,omitempty" json:"brojPasosa,omitempty"`
 }
 
 type Vozacka struct {
-	ID         primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Dokument   Dokument           `bson:"dokument,omitempty" json:"dokument,omitempty"`
+	ID         primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	Dokument   *Dokument          `bson:"dokument,omitempty" json:"dokument,omitempty"`
 	Kategorija Kategorija         `bson:"kategorija,omitempty" json:"kategorija"`
 }
 

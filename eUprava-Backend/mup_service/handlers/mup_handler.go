@@ -96,11 +96,11 @@ func (h *MupHandler) KreirajLicnuKartu(writer http.ResponseWriter, req *http.Req
 		return
 	}
 
-	licnaKarta, ok := req.Context().Value(KeyProduct{}).(*data.LicnaKarta)
-	if !ok || licnaKarta == nil {
+	var licnaKarta data.LicnaKarta
+	if err := json.NewDecoder(req.Body).Decode(&licnaKarta); err != nil {
+		span.SetStatus(codes.Error, "Pogresan format zahteva")
 		writer.WriteHeader(http.StatusBadRequest)
 		writer.Write([]byte("Pogresan format zahteva"))
-		span.SetStatus(codes.Error, "Pogresan format zahteva")
 		return
 	}
 
@@ -119,7 +119,7 @@ func (h *MupHandler) KreirajLicnuKartu(writer http.ResponseWriter, req *http.Req
 	jmbg := generateJMBG()
 	licnaKarta.JMBG = jmbg
 
-	korisnik.LicnaKarta = licnaKarta
+	korisnik.LicnaKarta = &licnaKarta
 
 	err = h.mupRepo.DodajKorisnika(ctx, &korisnik)
 	if err != nil {
@@ -129,49 +129,6 @@ func (h *MupHandler) KreirajLicnuKartu(writer http.ResponseWriter, req *http.Req
 		return
 	}
 
-	//writer.Header().Set("Content-Type", "application/json")
-	//json.NewEncoder(writer).Encode(korisnik)
-	//
-	////resp, err := json.Marshal(accommodations)
-	////_, err = rw.Write(resp)
-	//span.SetStatus(codes.Ok, "")
-	//writer.WriteHeader(http.StatusOK)
-
-	//korisnikId, ok := req.Context().Value(KeyProduct{}).(KorisnikId)
-	//if !ok || korisnikId.id == "" {
-	//	writer.WriteHeader(http.StatusBadRequest)
-	//	writer.Write([]byte("Pogresan format zahteva"))
-	//	span.SetStatus(codes.Error, "Pogresan format zahteva")
-	//	return
-	//}
-	//
-	//k, err := h.authRepo.DobaviKorisnika(ctx, korisnik.KorisnickoIme)
-	//if k != nil {
-	//	writer.WriteHeader(http.StatusBadRequest)
-	//	writer.Write([]byte("Korisnik vec postoji"))
-	//	span.SetStatus(codes.Error, "Korisnik vec postoji")
-	//	return
-	//}
-	//
-	//lozinka := []byte(korisnik.Lozinka)
-	//hash, err := bcrypt.GenerateFromPassword(lozinka, bcrypt.DefaultCost)
-	//if err != nil {
-	//	writer.WriteHeader(http.StatusBadRequest)
-	//	writer.Write([]byte("Greska prilikom hesiranja lozinke"))
-	//	span.SetStatus(codes.Error, "Greska prilikom hesiranja lozinke")
-	//	return
-	//}
-	//korisnik.Lozinka = string(hash)
-	//
-	//err = h.authRepo.DodajKorisnika(ctx, korisnik)
-	//if err != nil {
-	//	writer.WriteHeader(http.StatusBadRequest)
-	//	writer.Write([]byte("Greska prilikom dodavanja korisnika"))
-	//	span.SetStatus(codes.Error, "Greska prilikom dodavanja korisnika")
-	//	return
-	//}
-	//
-	//writer.WriteHeader(http.StatusOK)
 }
 
 func (h *MupHandler) DobaviKorisnike(rw http.ResponseWriter, r *http.Request) {

@@ -86,7 +86,6 @@ func (rr *MupRepo) Ping() {
 
 func (rr *MupRepo) DodajKorisnika(ctx context.Context, koisnik *Korisnik) error {
 
-	koisnik.ID = primitive.NewObjectID()
 	rezultat, err := rr.tabela.Collection(COLLECTIONKORISNICI).InsertOne(context.TODO(), koisnik)
 
 	if err != nil {

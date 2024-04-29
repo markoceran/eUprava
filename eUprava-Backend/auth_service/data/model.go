@@ -21,34 +21,34 @@ type Korisnik struct {
 }
 
 type Dokument struct {
-	ID            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	ID            primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
 	Ime           string             `bson:"ime,omitempty" json:"ime"`
 	Prezime       string             `bson:"prezime,omitempty" json:"prezime"`
 	DatumRodjenja primitive.DateTime `bson:"datumRodjenja,omitempty" json:"datumRodjenja"`
 	MestoRodjenja string             `bson:"mestoRodjenja,omitempty" json:"mestoRodjenja"`
-	Izdato        primitive.DateTime `bson:"izdato,omitempty" json:"izdato"`
-	Istice        primitive.DateTime `bson:"istice,omitempty" json:"istice"`
+	Izdato        primitive.DateTime `bson:"izdato,omitempty" json:"izdato,omitempty"`
+	Istice        primitive.DateTime `bson:"istice,omitempty" json:"istice,omitempty"`
 }
 
 type LicnaKarta struct {
-	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Dokument       Dokument           `bson:"dokument,omitempty" json:"dokument,omitempty"`
+	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	Dokument       *Dokument          `bson:"dokument,omitempty" json:"dokument,omitempty"`
 	Pol            Pol                `bson:"pol,omitempty" json:"pol"`
-	JMBG           string             `bson:"jmbg,omitempty" json:"jmbg"`
-	BrojLicneKarte string             `bson:"brojLicneKarte,omitempty" json:"brojLicneKarte"`
+	JMBG           string             `bson:"jmbg,omitempty" json:"jmbg,omitempty"`
+	BrojLicneKarte string             `bson:"brojLicneKarte,omitempty" json:"brojLicneKarte,omitempty"`
 }
 
 type Pasos struct {
-	ID            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Dokument      Dokument           `bson:"dokument,omitempty" json:"dokument,omitempty"`
+	ID            primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	Dokument      *Dokument          `bson:"dokument,omitempty" json:"dokument,omitempty"`
 	Pol           Pol                `bson:"pol,omitempty" json:"pol"`
 	Drzavljanstvo string             `bson:"drzavljanstvo,omitempty" json:"drzavljanstvo"`
-	BrojPasosa    string             `bson:"brojPasosa,omitempty" json:"brojPasosa"`
+	BrojPasosa    string             `bson:"brojPasosa,omitempty" json:"brojPasosa,omitempty"`
 }
 
 type Vozacka struct {
-	ID         primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Dokument   Dokument           `bson:"dokument,omitempty" json:"dokument,omitempty"`
+	ID         primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	Dokument   *Dokument          `bson:"dokument,omitempty" json:"dokument,omitempty"`
 	Kategorija Kategorija         `bson:"kategorija,omitempty" json:"kategorija"`
 }
 
