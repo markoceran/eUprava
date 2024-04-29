@@ -83,6 +83,34 @@ services:
     networks:
       - network
 
+
+
+  granicna_policija_service:
+    image: granicna_policija_service
+    container_name: granicna_policija_service
+    build:
+      context: .
+      dockerfile: ./granicna_policija_service/Dockerfile
+    restart: always
+    ports:
+      - ${GRANICNA_POLICIJA_SERVICE_PORT}:${GRANICNA_POLICIJA_SERVICE_PORT}
+    environment:
+      GRANICNA_POLICIJA_DB_HOST: ${GRANICNA_POLICIJA_DB_HOST}
+      GRANICNA_POLICIJA_DP_PORT: ${GRANICNA_POLICIJA_DB_PORT}
+      GRANICNA_POLICIJA_SERVICE_PORT: ${GRANICNA_POLICIJA_SERVICE_PORT}
+      AUTH_SERVICE_PORT: ${AUTH_SERVICE_PORT}
+      AUTH_SERVICE_HOST: ${AUTH_SERVICE_HOST}
+      SECRET_KEY: ${SECRET_KEY}
+      JAEGER_ADDRESS: ${JAEGER_ADDRESS}
+    depends_on:
+      granicna_policija_db:
+        condition: service_started
+    networks:
+      - network
+
+
+
+
   tuzilastvo_db:
     image: mongo
     container_name: tuzilastvo_db
@@ -93,6 +121,14 @@ services:
   mup_db:
     image: mongo
     container_name: mup_db
+    restart: on-failure
+    networks:
+      - network
+
+
+  granicna_policija_db:
+    image: mongo
+    container_name: granicna_policija_db
     restart: on-failure
     networks:
       - network
