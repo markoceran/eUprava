@@ -52,7 +52,7 @@ services:
       TUZILASTVO_DB_PORT: ${TUZILASTVO_DB_PORT}
       TUZILASTVO_SERVICE_PORT: ${TUZILASTVO_SERVICE_PORT}
       SECRET_KEY: ${SECRET_KEY}
-
+      JAEGER_ADDRESS: ${JAEGER_ADDRESS}
     depends_on:
       tuzilastvo_db:
         condition: service_started
@@ -60,9 +60,39 @@ services:
       - network
 
 
+  mup_service:
+    image: mup_service
+    container_name: mup_service
+    build:
+      context: .
+      dockerfile: ./mup_service/Dockerfile
+    restart: always
+    ports:
+      - ${MUP_SERVICE_PORT}:${MUP_SERVICE_PORT}
+    environment:
+      MUP_DB_HOST: ${MUP_DB_HOST}
+      MUP_DB_PORT: ${MUP_DB_PORT}
+      MUP_SERVICE_PORT: ${MUP_SERVICE_PORT}
+      AUTH_SERVICE_PORT: ${AUTH_SERVICE_PORT}
+      AUTH_SERVICE_HOST: ${AUTH_SERVICE_HOST}
+      SECRET_KEY: ${SECRET_KEY}
+      JAEGER_ADDRESS: ${JAEGER_ADDRESS}
+    depends_on:
+      mup_db:
+        condition: service_started
+    networks:
+      - network
+
   tuzilastvo_db:
     image: mongo
     container_name: tuzilastvo_db
+    restart: on-failure
+    networks:
+      - network
+
+  mup_db:
+    image: mongo
+    container_name: mup_db
     restart: on-failure
     networks:
       - network

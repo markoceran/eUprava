@@ -65,21 +65,21 @@ type Korisnik struct {
 }
 
 type Dokument struct {
-	ID            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	ID            primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
 	Ime           string             `bson:"ime,omitempty" json:"ime"`
 	Prezime       string             `bson:"prezime,omitempty" json:"prezime"`
 	DatumRodjenja primitive.DateTime `bson:"datumRodjenja,omitempty" json:"datumRodjenja"`
 	MestoRodjenja string             `bson:"mestoRodjenja,omitempty" json:"mestoRodjenja"`
-	Izdato        primitive.DateTime `bson:"izdato,omitempty" json:"izdato"`
-	Istice        primitive.DateTime `bson:"istice,omitempty" json:"istice"`
+	Izdato        primitive.DateTime `bson:"izdato,omitempty" json:"izdato,omitempty"`
+	Istice        primitive.DateTime `bson:"istice,omitempty" json:"istice,omitempty"`
 }
 
 type LicnaKarta struct {
-	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Dokument       Dokument           `bson:"dokument,omitempty" json:"dokument,omitempty"`
+	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	Dokument       *Dokument          `bson:"dokument,omitempty" json:"dokument,omitempty"`
 	Pol            Pol                `bson:"pol,omitempty" json:"pol"`
-	JMBG           string             `bson:"jmbg,omitempty" json:"jmbg"`
-	BrojLicneKarte string             `bson:"brojLicneKarte,omitempty" json:"brojLicneKarte"`
+	JMBG           string             `bson:"jmbg,omitempty" json:"jmbg,omitempty"`
+	BrojLicneKarte string             `bson:"brojLicneKarte,omitempty" json:"brojLicneKarte,omitempty"`
 }
 
 type Pasos struct {
@@ -119,6 +119,8 @@ type NalogZaPracenje struct {
 	Datum     primitive.DateTime `bson:"datum,omitempty" json:"datum"`
 }
 
+type Korisnici []*Korisnik
+
 //TODO: uraditi za ostale entitete ToJSON i FromJSON
 
 func (o *LicnaKarta) ToJSON(w io.Writer) error {
@@ -127,6 +129,16 @@ func (o *LicnaKarta) ToJSON(w io.Writer) error {
 }
 
 func (o *LicnaKarta) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
+
+func (o *Korisnici) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *Korisnici) FromJSON(r io.Reader) error {
 	d := json.NewDecoder(r)
 	return d.Decode(o)
 }

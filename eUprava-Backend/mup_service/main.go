@@ -1,9 +1,6 @@
 package main
 
 import (
-	"auth_service/data"
-	"auth_service/handlers"
-	"auth_service/middlewares"
 	"context"
 	"github.com/gorilla/mux"
 	"go.opentelemetry.io/otel"
@@ -13,6 +10,9 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"log"
+	"mup_service/data"
+	"mup_service/handlers"
+	"mup_service/middlewares"
 	"net/http"
 	"os"
 	"os/signal"
@@ -25,7 +25,7 @@ var (
 
 func main() {
 
-	port := os.Getenv("AUTH_SERVICE_PORT")
+	port := os.Getenv("MUP_SERVICE_PORT")
 
 	timeoutContext, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
@@ -40,7 +40,7 @@ func main() {
 	defer func() { _ = tp.Shutdown(timeoutContext) }()
 	otel.SetTracerProvider(tp)
 	// Finally, set the tracer that can be used for this package.
-	tracer := tp.Tracer("auth_service")
+	tracer := tp.Tracer("mup_service")
 	otel.SetTextMapPropagator(propagation.TraceContext{})
 
 	//Initialize the logger we are going to use, with prefix and datetime for every log
@@ -55,7 +55,7 @@ func main() {
 	defer store.DisconnectMongo(timeoutContext)
 	store.Ping()
 
-	authHandler := handlers.NewAuthHandler(logger, store, tracer)
+	mupHandler := handlers.NewMupHandler(logger, store, tracer)
 
 	//Initialize the router and add a middleware for all the requests
 	router := mux.NewRouter()
@@ -67,18 +67,14 @@ func main() {
 	}
 	router.Use(casbinMiddleware)
 
-	dodajKorisnika := router.Methods(http.MethodPost).Subrouter()
-	dodajKorisnika.HandleFunc("/dodajKorisnika", authHandler.DodajKorisnika)
-	dodajKorisnika.Use(authHandler.MiddlewareDeserialization)
+	kreirajLicnuKartu := router.Methods(http.MethodPut).Subrouter()
+	kreirajLicnuKartu.HandleFunc("/kreirajLicnuKartu/{id}", mupHandler.KreirajLicnuKartu)
 
 	dobaviKorisnike := router.Methods(http.MethodGet).Subrouter()
-	dobaviKorisnike.HandleFunc("/dobaviKorisnike", authHandler.DobaviKorisnike)
+	dobaviKorisnike.HandleFunc("/dobaviKorisnike", mupHandler.DobaviKorisnike)
 
-	dobaviKorisnikaPoId := router.Methods(http.MethodGet).Subrouter()
-	dobaviKorisnikaPoId.HandleFunc("/korisnik/{id}", authHandler.DobaviKorisnikaPoId)
-
-	login := router.Methods(http.MethodPost).Subrouter()
-	login.HandleFunc("/login", authHandler.Login)
+	//dobaviKorisnike := router.Methods(http.MethodGet).Subrouter()
+	//dobaviKorisnike.HandleFunc("/dobaviKorisnike", authHandler.DobaviKorisnike)
 
 	//Initialize the server
 	server := http.Server{

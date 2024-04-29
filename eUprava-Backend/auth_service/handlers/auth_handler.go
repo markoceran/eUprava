@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/cristalhq/jwt/v4"
+	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/crypto/bcrypt"
@@ -42,6 +44,38 @@ func (h *AuthHandler) DobaviKorisnike(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	err = korisnici.ToJSON(rw)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Greska prilikom konvertovanja u JSON"))
+		span.SetStatus(codes.Error, "Greska prilikom konvertovanja u JSON")
+	}
+}
+
+func (h *AuthHandler) DobaviKorisnikaPoId(rw http.ResponseWriter, r *http.Request) {
+	ctx, span := h.tracer.Start(r.Context(), "AuthHandler.DobaviKorisnikaPoId")
+	defer span.End()
+
+	vars := mux.Vars(r)
+	korisnikId, err := primitive.ObjectIDFromHex(vars["id"])
+	if err != nil {
+		span.SetStatus(codes.Error, "Greska")
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Greska"))
+		return
+	}
+
+	korisnik, err := h.authRepo.DobaviKorisnikaPoId(ctx, korisnikId)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Greska dobavljanja korisnika po ID"))
+		span.SetStatus(codes.Error, "Greska dobavljanja korisnika po ID")
+	}
+
+	if korisnik == nil {
+		return
+	}
+
+	err = korisnik.ToJSON(rw)
 	if err != nil {
 		rw.WriteHeader(http.StatusBadRequest)
 		rw.Write([]byte("Greska prilikom konvertovanja u JSON"))

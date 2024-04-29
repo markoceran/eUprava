@@ -119,10 +119,27 @@ func (rr *AuthRepo) DobaviKorisnika(ctx context.Context, korisnickoIme string) (
 	return korisnik, nil
 }
 
+func (rr *AuthRepo) DobaviKorisnikaPoId(ctx context.Context, id primitive.ObjectID) (*Korisnik, error) {
+	filter := bson.M{"_id": id}
+
+	korisnik, err := rr.filterOne(ctx, filter)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		log.Println("Greska dobavljanja korisnika:", err)
+		return nil, err
+	}
+
+	log.Println("Korisnik:", korisnik)
+
+	return korisnik, nil
+}
+
 func (rr *AuthRepo) filter(ctx context.Context, filter interface{}) (Korisnici, error) {
 	cursor, err := rr.tabela.Find(ctx, filter)
 	if err != nil {
-		log.Println("No user found for the given filter")
+		log.Println("Ne postoji korisnik za dati filter")
 		return nil, err
 	}
 	defer cursor.Close(ctx)
