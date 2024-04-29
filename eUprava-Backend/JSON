@@ -12,3 +12,14 @@ LOGIN
     "korisnickoIme":"marko",
     "lozinka":"123"
 }
+
+LICNA KARTA
+{
+  "dokument": {
+    "ime": "ttt",
+    "prezime": "ttt",
+    "datumRodjenja": "2005-05-05T00:00:00Z",
+    "mestoRodjenja": "test"
+  },
+  "pol": "Zenski"
+}
