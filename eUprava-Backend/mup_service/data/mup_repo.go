@@ -118,6 +118,53 @@ func (rr *MupRepo) DobaviKorisnikaPoJmbg(ctx context.Context, jmbg string) (*Kor
 	return korisnik, nil
 }
 
+
+func (rr *MupRepo) DobaviKorisnikaPoID(ctx context.Context, id primitive.ObjectID) (*Korisnik, error) {
+	filter := bson.D{{"_id", id}}
+	var korisnik Korisnik
+
+	err := rr.tabela.Collection(COLLECTIONKORISNICI).FindOne(ctx, filter).Decode(&korisnik)
+	if err != nil {
+		return nil, err
+	}
+
+	return &korisnik, nil
+}
+
+func (rr *MupRepo) AzurirajKorisnika(ctx context.Context, korisnik *Korisnik) error {
+	filter := bson.D{{"_id", korisnik.ID}}
+	update := bson.D{{"$set", korisnik}}
+
+	_, err := rr.tabela.Collection(COLLECTIONKORISNICI).UpdateOne(ctx, filter, update)
+	if err != nil {
+		log.Println("Greška prilikom ažuriranja korisnika")
+		return err
+	}
+	return nil
+}
+
+func (h *MupRepo) ProveriLicnuKartu(korisnikId primitive.ObjectID) (bool, error) {
+	// Dobavljanje korisnika iz baze podataka
+	korisnik, err := h.DobaviKorisnikaPoID(context.Background(), korisnikId)
+	if err != nil {
+		return false, err
+	}
+
+	// Provera da li korisnik ima već izdatu ličnu kartu
+	return korisnik.LicnaKarta != nil, nil
+}
+
+func (h *MupRepo) ProveriVozackuDozvolu(korisnikId primitive.ObjectID) (bool, error) {
+	// Dobavljanje korisnika iz baze podataka
+	korisnik, err := h.DobaviKorisnikaPoID(context.Background(), korisnikId)
+	if err != nil {
+		return false, err
+	}
+
+	// Provera da li korisnik ima već izdatu ličnu kartu
+	return korisnik.Vozacka != nil, nil
+}
+
 func (rr *MupRepo) filterKorisnici(ctx context.Context, filter interface{}) (Korisnici, error) {
 	cursor, err := rr.tabela.Collection(COLLECTIONKORISNICI).Find(ctx, filter)
 	if err != nil {
@@ -139,11 +186,5 @@ func decodeKorisnici(cursor *mongo.Cursor) (korisnici Korisnici, err error) {
 		korisnici = append(korisnici, &korisnik)
 	}
 	err = cursor.Err()
-	return
-}
-
-func (rr *MupRepo) filterJmbg(ctx context.Context, filter interface{}) (korisnik *Korisnik, err error) {
-	result := rr.tabela.Collection(COLLECTIONKORISNICI).FindOne(ctx, filter)
-	err = result.Decode(&korisnik)
 	return
 }

@@ -73,6 +73,12 @@ func main() {
 	dobaviKorisnike := router.Methods(http.MethodGet).Subrouter()
 	dobaviKorisnike.HandleFunc("/dobaviKorisnike", mupHandler.DobaviKorisnike)
 
+	kreirajVozackuDozvolu := router.Methods(http.MethodPut).Subrouter()
+	kreirajVozackuDozvolu.HandleFunc("/kreirajVozackuDozvolu/{id}", mupHandler.KreirajVozackuDozvolu)
+
+	kreirajSaobracajnuDozvolu := router.Methods(http.MethodPut).Subrouter()
+	kreirajSaobracajnuDozvolu.HandleFunc("/kreirajSaobracajnuDozvolu/{id}", mupHandler.KreirajSaobracajnuDozvolu)
+
 	//Initialize the server
 	server := http.Server{
 		Addr:         ":" + port,

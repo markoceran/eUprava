@@ -108,8 +108,8 @@ func (h *MupHandler) KreirajLicnuKartu(writer http.ResponseWriter, req *http.Req
 	licnaKarta.Dokument.ID = primitive.NewObjectID()
 	licnaKarta.Dokument.Izdato = primitive.NewDateTimeFromTime(time.Now().Truncate(24 * time.Hour))
 
-	istice := time.Now().AddDate(5, 0, 0).Truncate(24 * time.Hour)
-	licnaKarta.Dokument.Istice = primitive.NewDateTimeFromTime(istice)
+	licnaIstice := time.Now().AddDate(5, 0, 0).Truncate(24 * time.Hour)
+	licnaKarta.Dokument.Istice = primitive.NewDateTimeFromTime(licnaIstice)
 
 	rand.Seed(time.Now().UnixNano())
 	brojLicneKarte := generateBrojLicneKarte()
@@ -190,4 +190,145 @@ func generateBrojLicneKarte() string {
 		brojLicneKarte += fmt.Sprint(randomDigit)
 	}
 	return brojLicneKarte
+}
+
+//KREIRANJE VOZACKE DOZVOLE
+
+func (h *MupHandler) KreirajVozackuDozvolu(writer http.ResponseWriter, req *http.Request) {
+	ctx, span := h.tracer.Start(req.Context(), "MupHandler.KreirajVozackuDozvolu")
+	defer span.End()
+
+	vars := mux.Vars(req)
+	korisnikId, err := primitive.ObjectIDFromHex(vars["id"])
+	if err != nil {
+		span.SetStatus(codes.Error, "Id korisnika nije procitan")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Id korisnika nije procitan"))
+		return
+	}
+
+	// Dobavljanje korisnika iz baze podataka
+	korisnik, err := h.mupRepo.DobaviKorisnikaPoID(ctx, korisnikId)
+	if err != nil {
+		span.SetStatus(codes.Error, "Greska prilikom dobavljanja korisnika")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Greska prilikom dobavljanja korisnika"))
+		return
+	}
+
+	var vozackaDozvola data.Vozacka
+	if err := json.NewDecoder(req.Body).Decode(&vozackaDozvola); err != nil {
+		span.SetStatus(codes.Error, "Pogresan format zahteva")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Pogresan format zahteva"))
+		return
+	}
+
+	vozackaDozvola.ID = primitive.NewObjectID()
+	vozackaDozvola.Dokument.ID = primitive.NewObjectID()
+	vozackaDozvola.Dokument.Izdato = primitive.NewDateTimeFromTime(time.Now().Truncate(24 * time.Hour))
+
+	vozackaIstice := time.Now().AddDate(10, 0, 0).Truncate(24 * time.Hour)
+	vozackaDozvola.Dokument.Istice = primitive.NewDateTimeFromTime(vozackaIstice)
+
+	korisnik.Vozacka = &vozackaDozvola
+
+	err = h.mupRepo.AzurirajKorisnika(ctx, korisnik)
+	if err != nil {
+		span.SetStatus(codes.Error, "Greška prilikom ažuriranja korisnika")
+		writer.WriteHeader(http.StatusInternalServerError)
+		writer.Write([]byte("Greška prilikom ažuriranja korisnika"))
+		return
+	}
+
+	// Provera da li korisnik ima već izdatu ličnu kartu
+	hasLicnaKarta, err := h.mupRepo.ProveriLicnuKartu(korisnikId)
+	if err != nil {
+		span.SetStatus(codes.Error, "Greska pri proveri licne karte")
+		writer.WriteHeader(http.StatusInternalServerError)
+		writer.Write([]byte("Greska pri proveri licne karte"))
+		return
+	}
+
+	// Ako korisnik nema već izdatu ličnu kartu, ne može da se kreira vozačka dozvola
+	if !hasLicnaKarta {
+		span.SetStatus(codes.Error, "Korisnik nema izdatu licnu kartu")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Korisnik nema izdatu licnu kartu"))
+		return
+	}
+
+	writer.WriteHeader(http.StatusOK)
+	writer.Write([]byte("Vozačka dozvola je uspešno kreirana"))
+
+}
+
+//KREIRANJE SAOBRACAJNE DOZVOLE
+
+func (h *MupHandler) KreirajSaobracajnuDozvolu(writer http.ResponseWriter, req *http.Request) {
+	ctx, span := h.tracer.Start(req.Context(), "MupHandler.KreirajSaobracajneDozvole")
+	defer span.End()
+
+	vars := mux.Vars(req)
+	korisnikId, err := primitive.ObjectIDFromHex(vars["id"])
+	if err != nil {
+		span.SetStatus(codes.Error, "Id korisnika nije procitan")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Id korisnika nije procitan"))
+		return
+	}
+
+	// Dobavljanje korisnika iz baze podataka
+	korisnik, err := h.mupRepo.DobaviKorisnikaPoID(ctx, korisnikId)
+	if err != nil {
+		span.SetStatus(codes.Error, "Greska prilikom dobavljanja korisnika")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Greska prilikom dobavljanja korisnika"))
+		return
+	}
+
+	var saobracajnaDozvola data.Saobracajna
+	if err := json.NewDecoder(req.Body).Decode(&saobracajnaDozvola); err != nil {
+		span.SetStatus(codes.Error, "Pogresan format zahteva")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Pogresan format zahteva"))
+		return
+	}
+
+	saobracajnaDozvola.ID = primitive.NewObjectID()
+	saobracajnaDozvola.Izdato = primitive.NewDateTimeFromTime(time.Now().Truncate(24 * time.Hour))
+
+	saobracajnaIstice := time.Now().AddDate(10, 0, 0).Truncate(24 * time.Hour)
+	saobracajnaDozvola.Istice = primitive.NewDateTimeFromTime(saobracajnaIstice)
+
+	korisnik.Saobracajna = &saobracajnaDozvola
+
+	err = h.mupRepo.AzurirajKorisnika(ctx, korisnik)
+	if err != nil {
+		span.SetStatus(codes.Error, "Greška prilikom ažuriranja korisnika")
+		writer.WriteHeader(http.StatusInternalServerError)
+		writer.Write([]byte("Greška prilikom ažuriranja korisnika"))
+		return
+	}
+
+	// Provera da li korisnik ima već izdatu ličnu kartu
+	hasLicnaKarta, err := h.mupRepo.ProveriLicnuKartu(korisnikId)
+	if err != nil {
+		span.SetStatus(codes.Error, "Greska pri proveri licne karte")
+		writer.WriteHeader(http.StatusInternalServerError)
+		writer.Write([]byte("Greska pri proveri licne karte"))
+		return
+	}
+
+	// Ako korisnik nema već izdatu ličnu kartu, ne može da se kreira vozačka dozvola
+	if !hasLicnaKarta {
+		span.SetStatus(codes.Error, "Korisnik nema izdatu licnu kartu")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Korisnik nema izdatu licnu kartu"))
+		return
+	}
+
+	writer.WriteHeader(http.StatusOK)
+	writer.Write([]byte("Saobracajna dozvola je uspešno kreirana"))
+
 }
