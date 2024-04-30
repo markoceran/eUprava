@@ -79,6 +79,9 @@ func main() {
 	kreirajSaobracajnuDozvolu := router.Methods(http.MethodPut).Subrouter()
 	kreirajSaobracajnuDozvolu.HandleFunc("/kreirajSaobracajnuDozvolu/{id}", mupHandler.KreirajSaobracajnuDozvolu)
 
+	kreirajPasos := router.Methods(http.MethodPut).Subrouter()
+	kreirajPasos.HandleFunc("/kreirajPasos/{id}", mupHandler.KreirajPasos)
+
 	//Initialize the server
 	server := http.Server{
 		Addr:         ":" + port,

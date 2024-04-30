@@ -40,3 +40,15 @@ SAOBRACAJNA
   "markaVozila": "fiat",
   "modelVozila": "punto"
 }
+
+PASOS
+{
+  "dokument": {
+    "ime": "pera",
+    "prezime": "peric",
+    "datumRodjenja": "2002-06-06T00:00:00Z",
+    "mestoRodjenja": "Novi Sad"
+  },
+  "pol": "Muski",
+  "drzavljanstvo": "Srbija"
+}

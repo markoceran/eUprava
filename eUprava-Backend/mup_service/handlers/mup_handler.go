@@ -338,3 +338,86 @@ func (h *MupHandler) KreirajSaobracajnuDozvolu(writer http.ResponseWriter, req *
 	writer.Write([]byte("Saobracajna dozvola je uspešno kreirana"))
 
 }
+
+func (h *MupHandler) KreirajPasos(writer http.ResponseWriter, req *http.Request) {
+	ctx, span := h.tracer.Start(req.Context(), "MupHandler.KreirajPasos")
+	defer span.End()
+
+	vars := mux.Vars(req)
+	korisnikId, err := primitive.ObjectIDFromHex(vars["id"])
+	if err != nil {
+		span.SetStatus(codes.Error, "Id korisnika nije procitan")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Id korisnika nije procitan"))
+		return
+	}
+
+	korisnik, err := h.mupRepo.DobaviKorisnikaPoID(ctx, korisnikId)
+	if err != nil {
+		span.SetStatus(codes.Error, "Korisnik nema izdatu licnu kartu")
+		writer.WriteHeader(http.StatusForbidden)
+		writer.Write([]byte("Korisnik nema izdatu licnu kartu"))
+		return
+	}
+
+	imaPasos, err := h.mupRepo.ProveriPasos(korisnikId)
+	if err != nil {
+		span.SetStatus(codes.Error, "Greska pri proveri pasosa")
+		writer.WriteHeader(http.StatusInternalServerError)
+		writer.Write([]byte("Greska pri proveri pasosa"))
+		return
+	}
+
+	if imaPasos {
+		span.SetStatus(codes.Error, "Korisnik vec ima izdat pasos")
+		writer.WriteHeader(http.StatusForbidden)
+		writer.Write([]byte("Korisnik vec ima izdat pasos"))
+		return
+	}
+
+	var pasos data.Pasos
+	if err := json.NewDecoder(req.Body).Decode(&pasos); err != nil {
+		span.SetStatus(codes.Error, "Pogresan format zahteva")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Pogresan format zahteva"))
+		return
+	}
+
+	pasos.ID = primitive.NewObjectID()
+	pasos.Dokument.ID = primitive.NewObjectID()
+	pasos.Dokument.Izdato = primitive.NewDateTimeFromTime(time.Now().Truncate(24 * time.Hour))
+
+	istice := time.Now().AddDate(10, 0, 0).Truncate(24 * time.Hour)
+	pasos.Dokument.Istice = primitive.NewDateTimeFromTime(istice)
+
+	brojPasosa := generateBrojPasosa()
+	pasos.BrojPasosa = brojPasosa
+
+	korisnik.Pasos = &pasos
+
+	err = h.mupRepo.AzurirajKorisnika(ctx, korisnik)
+	if err != nil {
+		span.SetStatus(codes.Error, "Greška prilikom ažuriranja korisnika")
+		writer.WriteHeader(http.StatusInternalServerError)
+		writer.Write([]byte("Greška prilikom ažuriranja korisnika"))
+		return
+	}
+
+	writer.WriteHeader(http.StatusOK)
+	writer.Write([]byte("Pasoš je uspešno kreiran"))
+
+}
+
+func generateBrojPasosa() string {
+	var brojPasosa string
+
+	brojPasosa += ""
+
+	for i := 0; i < 9; i++ {
+		// Generate a random number between 0 and 9
+		randomDigit := rand.Intn(10)
+
+		brojPasosa += fmt.Sprint(randomDigit)
+	}
+	return brojPasosa
+}

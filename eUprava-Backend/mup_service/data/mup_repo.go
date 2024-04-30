@@ -175,6 +175,15 @@ func (h *MupRepo) ProveriSaobracajnuDozvolu(korisnikId primitive.ObjectID) (bool
 	return korisnik.Saobracajna != nil, nil
 }
 
+func (h *MupRepo) ProveriPasos(korisnikId primitive.ObjectID) (bool, error) {
+	korisnik, err := h.DobaviKorisnikaPoID(context.Background(), korisnikId)
+	if err != nil {
+		return false, err
+	}
+
+	return korisnik.Pasos != nil, nil
+}
+
 func (rr *MupRepo) filterKorisnici(ctx context.Context, filter interface{}) (Korisnici, error) {
 	cursor, err := rr.tabela.Collection(COLLECTIONKORISNICI).Find(ctx, filter)
 	if err != nil {
