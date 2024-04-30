@@ -23,3 +23,20 @@ LICNA KARTA
   },
   "pol": "Zenski"
 }
+
+VOZACKA
+{
+  "dokument": {
+    "ime": "vesna",
+    "prezime": "mikic",
+    "datumRodjenja": "2002-06-06T00:00:00Z",
+    "mestoRodjenja": "Novi Sad"
+  },
+  "kategorija": "A"
+}
+
+SAOBRACAJNA
+{
+  "markaVozila": "fiat",
+  "modelVozila": "punto"
+}

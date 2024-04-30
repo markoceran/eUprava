@@ -118,7 +118,6 @@ func (rr *MupRepo) DobaviKorisnikaPoJmbg(ctx context.Context, jmbg string) (*Kor
 	return korisnik, nil
 }
 
-
 func (rr *MupRepo) DobaviKorisnikaPoID(ctx context.Context, id primitive.ObjectID) (*Korisnik, error) {
 	filter := bson.D{{"_id", id}}
 	var korisnik Korisnik
@@ -165,6 +164,17 @@ func (h *MupRepo) ProveriVozackuDozvolu(korisnikId primitive.ObjectID) (bool, er
 	return korisnik.Vozacka != nil, nil
 }
 
+func (h *MupRepo) ProveriSaobracajnuDozvolu(korisnikId primitive.ObjectID) (bool, error) {
+	// Dobavljanje korisnika iz baze podataka
+	korisnik, err := h.DobaviKorisnikaPoID(context.Background(), korisnikId)
+	if err != nil {
+		return false, err
+	}
+
+	// Provera da li korisnik ima već izdatu saobracajnu
+	return korisnik.Saobracajna != nil, nil
+}
+
 func (rr *MupRepo) filterKorisnici(ctx context.Context, filter interface{}) (Korisnici, error) {
 	cursor, err := rr.tabela.Collection(COLLECTIONKORISNICI).Find(ctx, filter)
 	if err != nil {
@@ -174,6 +184,12 @@ func (rr *MupRepo) filterKorisnici(ctx context.Context, filter interface{}) (Kor
 	defer cursor.Close(ctx)
 
 	return decodeKorisnici(cursor)
+}
+
+func (rr *MupRepo) filterJmbg(ctx context.Context, filter interface{}) (korisnik *Korisnik, err error) {
+	result := rr.tabela.Collection(COLLECTIONKORISNICI).FindOne(ctx, filter)
+	err = result.Decode(&korisnik)
+	return
 }
 
 func decodeKorisnici(cursor *mongo.Cursor) (korisnici Korisnici, err error) {

@@ -88,10 +88,18 @@ func (h *MupHandler) KreirajLicnuKartu(writer http.ResponseWriter, req *http.Req
 		return
 	}
 
+	korisnikUBazi, _ := h.mupRepo.DobaviKorisnikaPoID(ctx, korisnikId)
+	if korisnikUBazi != nil {
+		span.SetStatus(codes.Error, "Korisnik vec ima izdatu licnu kartu")
+		writer.WriteHeader(http.StatusForbidden)
+		writer.Write([]byte("Korisnik vec ima izdatu licnu kartu"))
+		return
+	}
+
 	korisnik, err := h.DobaviKorisnikaOdAuthServisa(ctx, korisnikId)
 	if err != nil {
 		span.SetStatus(codes.Error, "Greska pilikom dobavljanja korisnika iz auth servisa")
-		writer.WriteHeader(http.StatusBadRequest)
+		writer.WriteHeader(http.StatusNotFound)
 		writer.Write([]byte("Greska pilikom dobavljanja korisnika iz auth servisa"))
 		return
 	}
@@ -118,8 +126,8 @@ func (h *MupHandler) KreirajLicnuKartu(writer http.ResponseWriter, req *http.Req
 	var jmbg string
 	for {
 		jmbg = generateJMBG()
-		_, err := h.mupRepo.DobaviKorisnikaPoJmbg(ctx, jmbg)
-		if err != nil {
+		korisnikPoJmbg, _ := h.mupRepo.DobaviKorisnikaPoJmbg(ctx, jmbg)
+		if korisnikPoJmbg == nil {
 			// JMBG is unique
 			break
 		}
@@ -130,14 +138,14 @@ func (h *MupHandler) KreirajLicnuKartu(writer http.ResponseWriter, req *http.Req
 
 	err = h.mupRepo.DodajKorisnika(ctx, &korisnik)
 	if err != nil {
-		writer.WriteHeader(http.StatusBadRequest)
+		writer.WriteHeader(http.StatusInternalServerError)
 		writer.Write([]byte("Greska prilikom dodavanja korisnika"))
 		span.SetStatus(codes.Error, "Greska prilikom dodavanja korisnika")
 		return
 	}
 
 	writer.WriteHeader(http.StatusOK)
-	span.SetStatus(codes.Ok, "")
+	writer.Write([]byte("Lična karta je uspešno kreirana"))
 
 }
 
@@ -210,9 +218,25 @@ func (h *MupHandler) KreirajVozackuDozvolu(writer http.ResponseWriter, req *http
 	// Dobavljanje korisnika iz baze podataka
 	korisnik, err := h.mupRepo.DobaviKorisnikaPoID(ctx, korisnikId)
 	if err != nil {
-		span.SetStatus(codes.Error, "Greska prilikom dobavljanja korisnika")
-		writer.WriteHeader(http.StatusBadRequest)
-		writer.Write([]byte("Greska prilikom dobavljanja korisnika"))
+		span.SetStatus(codes.Error, "Korisnik nema izdatu licnu kartu")
+		writer.WriteHeader(http.StatusForbidden)
+		writer.Write([]byte("Korisnik nema izdatu licnu kartu"))
+		return
+	}
+
+	// Provera da li korisnik ima već izdatu vozacku
+	imaVozacku, err := h.mupRepo.ProveriVozackuDozvolu(korisnikId)
+	if err != nil {
+		span.SetStatus(codes.Error, "Greska pri proveri vozacke")
+		writer.WriteHeader(http.StatusInternalServerError)
+		writer.Write([]byte("Greska pri proveri vozacke"))
+		return
+	}
+
+	if imaVozacku {
+		span.SetStatus(codes.Error, "Korisnik vec ima izdatu vozacku dozvolu")
+		writer.WriteHeader(http.StatusForbidden)
+		writer.Write([]byte("Korisnik vec ima izdatu vozacku dozvolu"))
 		return
 	}
 
@@ -241,23 +265,6 @@ func (h *MupHandler) KreirajVozackuDozvolu(writer http.ResponseWriter, req *http
 		return
 	}
 
-	// Provera da li korisnik ima već izdatu ličnu kartu
-	hasLicnaKarta, err := h.mupRepo.ProveriLicnuKartu(korisnikId)
-	if err != nil {
-		span.SetStatus(codes.Error, "Greska pri proveri licne karte")
-		writer.WriteHeader(http.StatusInternalServerError)
-		writer.Write([]byte("Greska pri proveri licne karte"))
-		return
-	}
-
-	// Ako korisnik nema već izdatu ličnu kartu, ne može da se kreira vozačka dozvola
-	if !hasLicnaKarta {
-		span.SetStatus(codes.Error, "Korisnik nema izdatu licnu kartu")
-		writer.WriteHeader(http.StatusBadRequest)
-		writer.Write([]byte("Korisnik nema izdatu licnu kartu"))
-		return
-	}
-
 	writer.WriteHeader(http.StatusOK)
 	writer.Write([]byte("Vozačka dozvola je uspešno kreirana"))
 
@@ -281,9 +288,25 @@ func (h *MupHandler) KreirajSaobracajnuDozvolu(writer http.ResponseWriter, req *
 	// Dobavljanje korisnika iz baze podataka
 	korisnik, err := h.mupRepo.DobaviKorisnikaPoID(ctx, korisnikId)
 	if err != nil {
-		span.SetStatus(codes.Error, "Greska prilikom dobavljanja korisnika")
-		writer.WriteHeader(http.StatusBadRequest)
-		writer.Write([]byte("Greska prilikom dobavljanja korisnika"))
+		span.SetStatus(codes.Error, "Korisnik nema izdatu licnu kartu")
+		writer.WriteHeader(http.StatusForbidden)
+		writer.Write([]byte("Korisnik nema izdatu licnu kartu"))
+		return
+	}
+
+	// Provera da li korisnik ima već izdatu saobracajnu
+	imaSaobracajnu, err := h.mupRepo.ProveriSaobracajnuDozvolu(korisnikId)
+	if err != nil {
+		span.SetStatus(codes.Error, "Greska pri proveri saobracajne")
+		writer.WriteHeader(http.StatusInternalServerError)
+		writer.Write([]byte("Greska pri proveri saobracajne"))
+		return
+	}
+
+	if imaSaobracajnu {
+		span.SetStatus(codes.Error, "Korisnik vec ima izdatu saobracajnu dozvolu")
+		writer.WriteHeader(http.StatusForbidden)
+		writer.Write([]byte("Korisnik vec ima izdatu saobracajnu dozvolu"))
 		return
 	}
 
@@ -308,23 +331,6 @@ func (h *MupHandler) KreirajSaobracajnuDozvolu(writer http.ResponseWriter, req *
 		span.SetStatus(codes.Error, "Greška prilikom ažuriranja korisnika")
 		writer.WriteHeader(http.StatusInternalServerError)
 		writer.Write([]byte("Greška prilikom ažuriranja korisnika"))
-		return
-	}
-
-	// Provera da li korisnik ima već izdatu ličnu kartu
-	hasLicnaKarta, err := h.mupRepo.ProveriLicnuKartu(korisnikId)
-	if err != nil {
-		span.SetStatus(codes.Error, "Greska pri proveri licne karte")
-		writer.WriteHeader(http.StatusInternalServerError)
-		writer.Write([]byte("Greska pri proveri licne karte"))
-		return
-	}
-
-	// Ako korisnik nema već izdatu ličnu kartu, ne može da se kreira vozačka dozvola
-	if !hasLicnaKarta {
-		span.SetStatus(codes.Error, "Korisnik nema izdatu licnu kartu")
-		writer.WriteHeader(http.StatusBadRequest)
-		writer.Write([]byte("Korisnik nema izdatu licnu kartu"))
 		return
 	}
 
