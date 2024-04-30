@@ -101,6 +101,23 @@ func (rr *MupRepo) DobaviKorisnike(ctx context.Context) (Korisnici, error) {
 	return rr.filterKorisnici(ctx, filter)
 }
 
+func (rr *MupRepo) DobaviKorisnikaPoJmbg(ctx context.Context, jmbg string) (*Korisnik, error) {
+	filter := bson.M{"licnaKarta.jmbg": jmbg}
+
+	korisnik, err := rr.filterJmbg(ctx, filter)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		log.Println("Greska dobavljanja korisnika:", err)
+		return nil, err
+	}
+
+	log.Println("Korisnik:", korisnik)
+
+	return korisnik, nil
+}
+
 func (rr *MupRepo) filterKorisnici(ctx context.Context, filter interface{}) (Korisnici, error) {
 	cursor, err := rr.tabela.Collection(COLLECTIONKORISNICI).Find(ctx, filter)
 	if err != nil {
@@ -122,5 +139,11 @@ func decodeKorisnici(cursor *mongo.Cursor) (korisnici Korisnici, err error) {
 		korisnici = append(korisnici, &korisnik)
 	}
 	err = cursor.Err()
+	return
+}
+
+func (rr *MupRepo) filterJmbg(ctx context.Context, filter interface{}) (korisnik *Korisnik, err error) {
+	result := rr.tabela.Collection(COLLECTIONKORISNICI).FindOne(ctx, filter)
+	err = result.Decode(&korisnik)
 	return
 }

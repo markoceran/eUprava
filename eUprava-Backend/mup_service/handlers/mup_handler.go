@@ -115,8 +115,15 @@ func (h *MupHandler) KreirajLicnuKartu(writer http.ResponseWriter, req *http.Req
 	brojLicneKarte := generateBrojLicneKarte()
 	licnaKarta.BrojLicneKarte = brojLicneKarte
 
-	rand.Seed(time.Now().UnixNano())
-	jmbg := generateJMBG()
+	var jmbg string
+	for {
+		jmbg = generateJMBG()
+		_, err := h.mupRepo.DobaviKorisnikaPoJmbg(ctx, jmbg)
+		if err != nil {
+			// JMBG is unique
+			break
+		}
+	}
 	licnaKarta.JMBG = jmbg
 
 	korisnik.LicnaKarta = &licnaKarta
@@ -128,6 +135,9 @@ func (h *MupHandler) KreirajLicnuKartu(writer http.ResponseWriter, req *http.Req
 		span.SetStatus(codes.Error, "Greska prilikom dodavanja korisnika")
 		return
 	}
+
+	writer.WriteHeader(http.StatusOK)
+	span.SetStatus(codes.Ok, "")
 
 }
 

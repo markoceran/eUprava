@@ -142,3 +142,13 @@ func (o *Korisnici) FromJSON(r io.Reader) error {
 	d := json.NewDecoder(r)
 	return d.Decode(o)
 }
+
+func (o *Korisnik) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *Korisnik) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}

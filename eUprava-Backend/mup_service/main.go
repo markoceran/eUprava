@@ -73,9 +73,6 @@ func main() {
 	dobaviKorisnike := router.Methods(http.MethodGet).Subrouter()
 	dobaviKorisnike.HandleFunc("/dobaviKorisnike", mupHandler.DobaviKorisnike)
 
-	//dobaviKorisnike := router.Methods(http.MethodGet).Subrouter()
-	//dobaviKorisnike.HandleFunc("/dobaviKorisnike", authHandler.DobaviKorisnike)
-
 	//Initialize the server
 	server := http.Server{
 		Addr:         ":" + port,
