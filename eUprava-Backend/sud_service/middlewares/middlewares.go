@@ -1,13 +1,11 @@
 package middlewares
 
 import (
-	"errors"
 	"github.com/casbin/casbin"
-	"github.com/cristalhq/jwt/v4"
 	"log"
 	"net/http"
-	"os"
 	"strings"
+	"sud_service/helper"
 )
 
 func MiddlewareContentTypeSet(next http.Handler) http.Handler {
@@ -23,51 +21,6 @@ func MiddlewareContentTypeSet(next http.Handler) http.Handler {
 	})
 }
 
-var jwtKey = []byte(os.Getenv("SECRET_KEY"))
-
-var verifier, _ = jwt.NewVerifierHS(jwt.HS256, jwtKey)
-
-func parseToken(tokenString string) (*jwt.Token, error) {
-	token, err := jwt.Parse([]byte(tokenString), verifier)
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-	return token, nil
-}
-
-func extractUserType(r *http.Request) (string, error) {
-	bearer := r.Header.Get("Authorization")
-	if bearer == "" {
-		return "Unauthenticated", nil
-	}
-
-	bearerToken := strings.Split(bearer, "Bearer ")
-	if len(bearerToken) != 2 {
-		return "", errors.New("invalid token format")
-	}
-
-	tokenString := bearerToken[1]
-	token, err := parseToken(tokenString)
-	if err != nil {
-		return "", err
-	}
-
-	claims := extractClaims(token)
-	return claims["userType"], nil
-}
-
-func extractClaims(token *jwt.Token) map[string]string {
-	var claims map[string]string
-
-	err := jwt.ParseClaims(token.Bytes(), verifier, &claims)
-	if err != nil {
-		log.Println(err)
-	}
-
-	return claims
-}
-
 func InitializeCasbinMiddleware(modelPath, policyPath string) (func(http.Handler) http.Handler, error) {
 	e, err := casbin.NewEnforcerSafe(modelPath, policyPath)
 	if err != nil {
@@ -77,7 +30,7 @@ func InitializeCasbinMiddleware(modelPath, policyPath string) (func(http.Handler
 
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			userRole, err := extractUserType(r)
+			userRole, err := helper.ExtractUserType(r)
 			if err != nil {
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
@@ -116,7 +69,7 @@ func TokenValidationMiddleware(next http.Handler) http.Handler {
 
 		// Parse the token
 		tokenString = strings.Replace(tokenString, "Bearer ", "", 1)
-		token, err := parseToken(tokenString)
+		token, err := helper.ParseToken(tokenString)
 
 		// Check if there's an error parsing the token
 		if err != nil || token == nil {

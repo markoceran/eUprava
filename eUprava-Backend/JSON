@@ -77,4 +77,7 @@ GET http://localhost:8004/predmeti
 PREDMETI DOBAVLJANJE PO ID:
 GET http://localhost:8004/predmeti/{id}
 
-
+ZAHTEV ZA SUDSKI POSTUPAK
+{
+    "opis":"test"
+}
