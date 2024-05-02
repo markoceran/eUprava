@@ -83,6 +83,29 @@ services:
     networks:
       - network
 
+  sud_service:
+    image: sud_service
+    container_name: sud_service
+    build:
+      context: .
+      dockerfile: ./sud_service/Dockerfile
+    restart: always
+    ports:
+      - ${SUD_SERVICE_PORT}:${SUD_SERVICE_PORT}
+    environment:
+      SUD_DB_HOST: ${SUD_DB_HOST}
+      SUD_DB_PORT: ${SUD_DB_PORT}
+      SUD_SERVICE_PORT: ${SUD_SERVICE_PORT}
+      AUTH_SERVICE_PORT: ${AUTH_SERVICE_PORT}
+      AUTH_SERVICE_HOST: ${AUTH_SERVICE_HOST}
+      SECRET_KEY: ${SECRET_KEY}
+      JAEGER_ADDRESS: ${JAEGER_ADDRESS}
+    depends_on:
+      sud_db:
+        condition: service_started
+    networks:
+      - network
+
   tuzilastvo_db:
     image: mongo
     container_name: tuzilastvo_db
@@ -100,6 +123,13 @@ services:
   auth_db:
     image: mongo
     container_name: auth_db
+    restart: on-failure
+    networks:
+      - network
+
+  sud_db:
+    image: mongo
+    container_name: sud_db
     restart: on-failure
     networks:
       - network

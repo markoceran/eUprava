@@ -59,6 +59,16 @@ type Presuda struct {
 	IdSudije       primitive.ObjectID `bson:"idSudije,omitempty" json:"idSudije"`
 }
 
+func (o *Predmeti) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *Predmeti) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
+
 func (o *Prelaz) ToJSON(w io.Writer) error {
 	e := json.NewEncoder(w)
 	return e.Encode(o)
