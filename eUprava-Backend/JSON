@@ -53,6 +53,16 @@ PASOS
   "drzavljanstvo": "Srbija"
 }
 
+VALIDACIJA DOKUMENATA
+{
+  "jmbg": "2409903764987",
+  "ime": "marko",
+  "prezime": "ceran",
+  "brojLicneKarte": "073315976",
+  "brojPasosa": "933325433",
+  "drzavljanstvo": "Srbija"
+}
+
 
 PREDMET DODAVANJE:
 POST http://localhost:8004/predmeti

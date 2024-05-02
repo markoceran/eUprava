@@ -82,6 +82,9 @@ func main() {
 	kreirajPasos := router.Methods(http.MethodPut).Subrouter()
 	kreirajPasos.HandleFunc("/kreirajPasos/{id}", mupHandler.KreirajPasos)
 
+	validirajDokumente := router.Methods(http.MethodPost).Subrouter()
+	validirajDokumente.HandleFunc("/validirajDokumente", mupHandler.ValidirajDokumente)
+
 	//Initialize the server
 	server := http.Server{
 		Addr:         ":" + port,

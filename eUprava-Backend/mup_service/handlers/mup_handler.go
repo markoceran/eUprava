@@ -421,3 +421,108 @@ func generateBrojPasosa() string {
 	}
 	return brojPasosa
 }
+
+func (h *MupHandler) ValidirajDokumente(writer http.ResponseWriter, req *http.Request) {
+	ctx, span := h.tracer.Start(req.Context(), "MupHandler.ValidacijaDokumenata")
+	defer span.End()
+
+	var podaciZaValidaciju data.PodaciZaValidaciju
+	if err := json.NewDecoder(req.Body).Decode(&podaciZaValidaciju); err != nil {
+		span.SetStatus(codes.Error, "Pogresan format zahteva")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Pogresan format zahteva"))
+		return
+	}
+
+	korisnik, err := h.mupRepo.DobaviKorisnikaPoJmbg(ctx, podaciZaValidaciju.JMBG)
+	if err != nil {
+		span.SetStatus(codes.Error, "Korisnik nije pronadjen - jmbg nije validan")
+		writer.WriteHeader(http.StatusForbidden)
+		writer.Write([]byte("Korisnik nije pronadjen - jmbg nije validan"))
+		return
+	}
+
+	if korisnik == nil {
+		span.SetStatus(codes.Error, "Korisnik nije pronadjen - jmbg nije validan")
+		writer.WriteHeader(http.StatusForbidden)
+		writer.Write([]byte("Korisnik nije pronadjen - jmbg nije validan"))
+		return
+	}
+
+	if korisnik.LicnaKarta != nil {
+		if dokumentJeIstekao(korisnik.LicnaKarta.Dokument.Istice) {
+			span.SetStatus(codes.Error, "Licna karta je istekla")
+			writer.WriteHeader(http.StatusForbidden)
+			writer.Write([]byte("Licna karta je istekla"))
+			return
+		} else if korisnik.LicnaKarta.Dokument.Ime != podaciZaValidaciju.Ime || korisnik.LicnaKarta.Dokument.Prezime != podaciZaValidaciju.Prezime {
+			span.SetStatus(codes.Error, "Ime ili prezime nije validno")
+			writer.WriteHeader(http.StatusForbidden)
+			writer.Write([]byte("Ime ili prezime nije validno"))
+			return
+		} else if korisnik.LicnaKarta.JMBG != podaciZaValidaciju.JMBG {
+			span.SetStatus(codes.Error, "Jmbg nije validan")
+			writer.WriteHeader(http.StatusForbidden)
+			writer.Write([]byte("Jmbg nije validan"))
+			return
+		} else if korisnik.LicnaKarta.BrojLicneKarte != podaciZaValidaciju.BrojLicneKarte {
+			span.SetStatus(codes.Error, "Broj licne karte nije validan")
+			writer.WriteHeader(http.StatusForbidden)
+			writer.Write([]byte("Broj licne karte nije validan"))
+			return
+		}
+	} else {
+		span.SetStatus(codes.Error, "Korisnik ne poseduje licnu kartu")
+		writer.WriteHeader(http.StatusForbidden)
+		writer.Write([]byte("Korisnik ne poseduje licnu kartu"))
+		return
+	}
+
+	if korisnik.Pasos != nil {
+		if dokumentJeIstekao(korisnik.Pasos.Dokument.Istice) {
+			span.SetStatus(codes.Error, "Pasos je istekao")
+			writer.WriteHeader(http.StatusForbidden)
+			writer.Write([]byte("Pasos je istekao"))
+			return
+		} else if korisnik.Pasos.Dokument.Ime != podaciZaValidaciju.Ime || korisnik.Pasos.Dokument.Prezime != podaciZaValidaciju.Prezime {
+			span.SetStatus(codes.Error, "Ime ili prezime nije validno")
+			writer.WriteHeader(http.StatusForbidden)
+			writer.Write([]byte("Ime ili prezime nije validno"))
+			return
+		} else if korisnik.Pasos.BrojPasosa != podaciZaValidaciju.BrojPasosa {
+			span.SetStatus(codes.Error, "Broj pasosa nije validan")
+			writer.WriteHeader(http.StatusForbidden)
+			writer.Write([]byte("Broj pasosa nije validan"))
+			return
+		} else if korisnik.Pasos.Drzavljanstvo != podaciZaValidaciju.Drzavljanstvo {
+			span.SetStatus(codes.Error, "Drzavljanstvo nije validno")
+			writer.WriteHeader(http.StatusForbidden)
+			writer.Write([]byte("Drzavljanstvo nije validno"))
+			return
+		}
+	} else {
+		span.SetStatus(codes.Error, "Korisnik ne poseduje pasos")
+		writer.WriteHeader(http.StatusForbidden)
+		writer.Write([]byte("Korisnik ne poseduje pasos"))
+		return
+	}
+
+	writer.WriteHeader(http.StatusOK)
+	writer.Write([]byte("Dokumenti su validni!"))
+
+}
+
+func dokumentJeIstekao(istice primitive.DateTime) bool {
+	// Extract the time.Time value from the primitive.DateTime
+	isticeTime := istice.Time()
+
+	// Truncate the time to get only the date portion
+	isticeDate := time.Date(isticeTime.Year(), isticeTime.Month(), isticeTime.Day(), 0, 0, 0, 0, time.UTC)
+
+	// Get the current date with time set to 00:00:00
+	trenutno := time.Now().Truncate(24 * time.Hour)
+	log.Println("Istice", isticeDate)
+	log.Println("Trenutno", trenutno)
+	// Compare Istice with the current date
+	return trenutno.After(isticeDate)
+}

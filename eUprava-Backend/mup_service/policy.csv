@@ -3,3 +3,4 @@ p, Unauthenticated, /kreirajSaobracajnuDozvolu/*, PUT
 p, Unauthenticated, /kreirajLicnuKartu/*, PUT
 p, Unauthenticated, /kreirajPasos/*, PUT
 p, Unauthenticated, /dobaviKorisnike, GET
+p, Unauthenticated, /validirajDokumente, POST
