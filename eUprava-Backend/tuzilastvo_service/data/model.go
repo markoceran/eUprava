@@ -72,7 +72,7 @@ type Odgovor struct {
 	Datum   primitive.DateTime `bson:"datum,omitempty" json:"datum"`
 }
 
-//TODO: uraditi za ostale entitete ToJSON i FromJSON
+type ZahteviZaSudskiPostupak []*ZahtevZaSudskiPostupak
 
 func (o *ZahtevZaSudskiPostupak) ToJSON(w io.Writer) error {
 	e := json.NewEncoder(w)
@@ -80,6 +80,16 @@ func (o *ZahtevZaSudskiPostupak) ToJSON(w io.Writer) error {
 }
 
 func (o *ZahtevZaSudskiPostupak) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
+
+func (o *ZahteviZaSudskiPostupak) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *ZahteviZaSudskiPostupak) FromJSON(r io.Reader) error {
 	d := json.NewDecoder(r)
 	return d.Decode(o)
 }

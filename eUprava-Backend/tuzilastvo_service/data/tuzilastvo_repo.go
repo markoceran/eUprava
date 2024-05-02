@@ -13,16 +13,17 @@ import (
 	"time"
 )
 
+const (
+	DATABASE                         = "tuzilastvo"
+	COLLECTIONZAHTEVZASUDSKIPOSTUPAK = "zahtevZaSudskiPostupak"
+)
+
 type TuzilastvoRepo struct {
 	cli    *mongo.Client
 	logger *log.Logger
 	client *http.Client
+	tabela *mongo.Database
 }
-
-var (
-	tuzilastvoServiceHost = os.Getenv("TUZILASTVO_SERVICE_HOST")
-	tuzilastvoServicePort = os.Getenv("TUZILASTVO_SERVICE_PORT")
-)
 
 func New(ctx context.Context, logger *log.Logger) (*TuzilastvoRepo, error) {
 	dburi := fmt.Sprintf("mongodb://%s:%s/", os.Getenv("TUZILASTVO_DB_HOST"), os.Getenv("TUZILASTVO_DB_PORT"))
@@ -44,12 +45,13 @@ func New(ctx context.Context, logger *log.Logger) (*TuzilastvoRepo, error) {
 			MaxConnsPerHost:     10,
 		},
 	}
-
+	tabela := client.Database(DATABASE)
 	// Return repository with logger and DB client
 	return &TuzilastvoRepo{
 		cli:    client,
 		logger: logger,
 		client: httpClient,
+		tabela: tabela,
 	}, nil
 }
 
@@ -79,4 +81,44 @@ func (rr *TuzilastvoRepo) Ping() {
 		rr.logger.Println(err)
 	}
 	fmt.Println(databases)
+}
+
+func (rr *TuzilastvoRepo) DodajZahtevZaSudskiPostupak(ctx context.Context, zahtev *ZahtevZaSudskiPostupak) error {
+
+	_, err := rr.tabela.Collection(COLLECTIONZAHTEVZASUDSKIPOSTUPAK).InsertOne(context.TODO(), zahtev)
+
+	if err != nil {
+		log.Println("Greska prilikom dodavanja zahteva za sudski postupak")
+		return err
+	}
+	return nil
+}
+
+func (rr *TuzilastvoRepo) DobaviZahteveZaSudskiPostupak(ctx context.Context) (ZahteviZaSudskiPostupak, error) {
+	filter := bson.D{{}}
+	return rr.filterZahteviZaSudskiPostupak(ctx, filter)
+}
+
+func (rr *TuzilastvoRepo) filterZahteviZaSudskiPostupak(ctx context.Context, filter interface{}) (ZahteviZaSudskiPostupak, error) {
+	cursor, err := rr.tabela.Collection(COLLECTIONZAHTEVZASUDSKIPOSTUPAK).Find(ctx, filter)
+	if err != nil {
+		log.Println("Ne postoje zahtevi za sudski postupak za dati filter")
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	return decodeZahteviZaSudskiPostupak(cursor)
+}
+
+func decodeZahteviZaSudskiPostupak(cursor *mongo.Cursor) (zahtevi ZahteviZaSudskiPostupak, err error) {
+	for cursor.Next(context.TODO()) {
+		var zahtev ZahtevZaSudskiPostupak
+		err = cursor.Decode(&zahtev)
+		if err != nil {
+			return
+		}
+		zahtevi = append(zahtevi, &zahtev)
+	}
+	err = cursor.Err()
+	return
 }

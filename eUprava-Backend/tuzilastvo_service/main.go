@@ -3,13 +3,24 @@ package main
 import (
 	"context"
 	"github.com/gorilla/mux"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
 	"tuzilastvo_service/data"
+	"tuzilastvo_service/handlers"
 	"tuzilastvo_service/middlewares"
+)
+
+var (
+	JaegerAddress = os.Getenv("JAEGER_ADDRESS")
 )
 
 func main() {
@@ -18,6 +29,19 @@ func main() {
 
 	timeoutContext, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
+
+	exp, err := newExporter(JaegerAddress)
+	if err != nil {
+		log.Fatalf("failed to initialize exporter: %v", err)
+	}
+	// Create a new tracer provider with a batch span processor and the given exporter.
+	tp := newTraceProvider(exp)
+	// Handle shutdown properly so nothing leaks.
+	defer func() { _ = tp.Shutdown(timeoutContext) }()
+	otel.SetTracerProvider(tp)
+	// Finally, set the tracer that can be used for this package.
+	tracer := tp.Tracer("tuzilastvo_service")
+	otel.SetTextMapPropagator(propagation.TraceContext{})
 
 	//Initialize the logger we are going to use, with prefix and datetime for every log
 	logger := log.New(os.Stdout, "[acc-api] ", log.LstdFlags)
@@ -31,12 +55,12 @@ func main() {
 	defer store.DisconnectMongo(timeoutContext)
 	store.Ping()
 
-	//tuzilastvoHandler := handlers.NewTuzilastvoHandler(logger, store)
+	tuzilastvoHandler := handlers.NewTuzilastvoHandler(logger, store, tracer)
 
 	//Initialize the router and add a middleware for all the requests
 	router := mux.NewRouter()
 	router.Use(middlewares.MiddlewareContentTypeSet)
-	router.Use(middlewares.TokenValidationMiddleware)
+	//router.Use(middlewares.TokenValidationMiddleware)
 
 	casbinMiddleware, err := middlewares.InitializeCasbinMiddleware("./rbac_model.conf", "./policy.csv")
 	if err != nil {
@@ -44,24 +68,11 @@ func main() {
 	}
 	router.Use(casbinMiddleware)
 
-	//getAppointmentByAccommodation := router.Methods(http.MethodGet).Subrouter()
-	//getAppointmentByAccommodation.HandleFunc("/appointmentsByAccommodation/{id}", appointmentHandler.GetAppointmentsByAccommodation)
-	////getAllAppointment.Use(appointmentHandler.MiddlewareAppointmentDeserialization)
-	//
-	//getAppointmentsByDate := router.Methods(http.MethodGet).Subrouter()
-	//getAppointmentsByDate.HandleFunc("/appointmentsByDate/", appointmentHandler.GetAppointmentsByDate)
-	//
-	//createAppointment := router.Methods(http.MethodPost).Subrouter()
-	//createAppointment.HandleFunc("/appointments", appointmentHandler.CreateAppointment)
-	//createAppointment.Use(appointmentHandler.MiddlewareAppointmentDeserialization)
-	//
-	//getAllAppointment := router.Methods(http.MethodGet).Subrouter()
-	//getAllAppointment.HandleFunc("/appointments", appointmentHandler.GetAllAppointment)
-	////getAllAppointment.Use(appointmentHandler.MiddlewareAppointmentDeserialization)
-	//
-	//createReservation := router.Methods(http.MethodPost).Subrouter()
-	//createReservation.HandleFunc("/reservations", reservationHandler.CreateReservation)
-	//createReservation.Use(reservationHandler.MiddlewareReservationDeserialization)
+	kreirajZahtevZaSudskiPostupak := router.Methods(http.MethodPost).Subrouter()
+	kreirajZahtevZaSudskiPostupak.HandleFunc("/kreirajZahtevZaSudskiPostupak", tuzilastvoHandler.KreirajZahtevZaSudskiPostupak)
+
+	dobaviZahteveZaSudskiPostupak := router.Methods(http.MethodGet).Subrouter()
+	dobaviZahteveZaSudskiPostupak.HandleFunc("/dobaviZahteveZaSudskiPostupak", tuzilastvoHandler.DobaviZahteveZaSudskiPostupak)
 
 	//Initialize the server
 	server := http.Server{
@@ -93,4 +104,31 @@ func main() {
 	}
 	logger.Println("Server stopped")
 
+}
+
+func newTraceProvider(exp sdktrace.SpanExporter) *sdktrace.TracerProvider {
+	// Ensure default SDK resources and the required service name are set.
+	r, err := resource.Merge(
+		resource.Default(),
+		resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String("reservations_service"),
+		),
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exp),
+		sdktrace.WithResource(r),
+	)
+}
+func newExporter(address string) (*jaeger.Exporter, error) {
+	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(address)))
+	if err != nil {
+		return nil, err
+	}
+	return exp, nil
 }
