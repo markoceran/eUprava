@@ -3,3 +3,4 @@ p, , /kreirajSaobracajnuDozvolu/*, PUT
 p, , /kreirajLicnuKartu/*, PUT
 p, , /kreirajPasos/*, PUT
 p, , /dobaviKorisnike, GET
+p, , /validirajDokumente, POST

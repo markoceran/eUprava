@@ -10,12 +10,12 @@ import (
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"log"
-	"mup_service/data"
-	"mup_service/handlers"
-	"mup_service/middlewares"
 	"net/http"
 	"os"
 	"os/signal"
+	"sud_service/data"
+	"sud_service/handlers"
+	"sud_service/middlewares"
 	"time"
 )
 
@@ -24,8 +24,7 @@ var (
 )
 
 func main() {
-
-	port := os.Getenv("MUP_SERVICE_PORT")
+	port := os.Getenv("SUD_SERVICE_PORT")
 
 	timeoutContext, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
@@ -40,12 +39,12 @@ func main() {
 	defer func() { _ = tp.Shutdown(timeoutContext) }()
 	otel.SetTracerProvider(tp)
 	// Finally, set the tracer that can be used for this package.
-	tracer := tp.Tracer("mup_service")
+	tracer := tp.Tracer("sud_service")
 	otel.SetTextMapPropagator(propagation.TraceContext{})
 
 	//Initialize the logger we are going to use, with prefix and datetime for every log
-	logger := log.New(os.Stdout, "[acc-api] ", log.LstdFlags)
-	storeLogger := log.New(os.Stdout, "[acc-store] ", log.LstdFlags)
+	logger := log.New(os.Stdout, "[sud-api] ", log.LstdFlags)
+	storeLogger := log.New(os.Stdout, "[sud-store] ", log.LstdFlags)
 
 	// NoSQL: Initialize Repository store
 	store, err := data.New(timeoutContext, storeLogger)
@@ -55,35 +54,27 @@ func main() {
 	defer store.DisconnectMongo(timeoutContext)
 	store.Ping()
 
-	mupHandler := handlers.NewMupHandler(logger, store, tracer)
+	sudHandler := handlers.NewSudHandler(logger, store, tracer)
 
 	//Initialize the router and add a middleware for all the requests
 	router := mux.NewRouter()
 	router.Use(middlewares.MiddlewareContentTypeSet)
 
-	casbinMiddleware, err := middlewares.InitializeCasbinMiddleware("./rbac_model.conf", "./policy.csv")
-	if err != nil {
-		log.Fatal(err)
-	}
-	router.Use(casbinMiddleware)
+	//casbinMiddleware, err := middlewares.InitializeCasbinMiddleware("./rbac_model.conf", "./policy.csv")
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//router.Use(casbinMiddleware)
 
-	kreirajLicnuKartu := router.Methods(http.MethodPut).Subrouter()
-	kreirajLicnuKartu.HandleFunc("/kreirajLicnuKartu/{id}", mupHandler.KreirajLicnuKartu)
+	dobaviPredmete := router.Methods(http.MethodGet).Subrouter()
+	dobaviPredmete.HandleFunc("/predmeti", sudHandler.DobaviPredmete)
 
-	dobaviKorisnike := router.Methods(http.MethodGet).Subrouter()
-	dobaviKorisnike.HandleFunc("/dobaviKorisnike", mupHandler.DobaviKorisnike)
+	kreirajPredmet := router.Methods(http.MethodPost).Subrouter()
+	kreirajPredmet.HandleFunc("/predmeti", sudHandler.DodajPredmet)
+	kreirajPredmet.Use(sudHandler.MiddlewareDeserialization)
 
-	kreirajVozackuDozvolu := router.Methods(http.MethodPut).Subrouter()
-	kreirajVozackuDozvolu.HandleFunc("/kreirajVozackuDozvolu/{id}", mupHandler.KreirajVozackuDozvolu)
-
-	kreirajSaobracajnuDozvolu := router.Methods(http.MethodPut).Subrouter()
-	kreirajSaobracajnuDozvolu.HandleFunc("/kreirajSaobracajnuDozvolu/{id}", mupHandler.KreirajSaobracajnuDozvolu)
-
-	kreirajPasos := router.Methods(http.MethodPut).Subrouter()
-	kreirajPasos.HandleFunc("/kreirajPasos/{id}", mupHandler.KreirajPasos)
-
-	validirajDokumente := router.Methods(http.MethodPost).Subrouter()
-	validirajDokumente.HandleFunc("/validirajDokumente", mupHandler.ValidirajDokumente)
+	dobaviPredmetPoId := router.Methods(http.MethodGet).Subrouter()
+	dobaviPredmetPoId.HandleFunc("/predmeti/{id}", sudHandler.DobaviPredmetPoId)
 
 	//Initialize the server
 	server := http.Server{

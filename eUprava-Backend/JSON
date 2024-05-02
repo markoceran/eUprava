@@ -52,3 +52,29 @@ PASOS
   "pol": "Muski",
   "drzavljanstvo": "Srbija"
 }
+
+VALIDACIJA DOKUMENATA
+{
+  "jmbg": "2409903764987",
+  "ime": "marko",
+  "prezime": "ceran",
+  "brojLicneKarte": "073315976",
+  "brojPasosa": "933325433",
+  "drzavljanstvo": "Srbija"
+}
+
+
+PREDMET DODAVANJE:
+POST http://localhost:8004/predmeti
+{
+	"opis": "Opis predmeta",
+	"datum": "2002-06-06T00:00:00Z"
+}
+
+PREDMETI DOBAVLJANJE:
+GET http://localhost:8004/predmeti
+
+PREDMETI DOBAVLJANJE PO ID:
+GET http://localhost:8004/predmeti/{id}
+
+
