@@ -14,8 +14,10 @@ import (
 )
 
 const (
-	DATABASE                         = "tuzilastvo"
-	COLLECTIONZAHTEVZASUDSKIPOSTUPAK = "zahtevZaSudskiPostupak"
+	DATABASE                             = "tuzilastvo"
+	COLLECTIONZAHTEVZASUDSKIPOSTUPAK     = "zahtevZaSudskiPostupak"
+	COLLECTIONZAHTEVZASKLAPANJESPORAZUMA = "zahtevZaSklapanjeSporazuma"
+	COLLECTIONSPORAZUM                   = "sporazum"
 )
 
 type TuzilastvoRepo struct {
@@ -94,9 +96,42 @@ func (rr *TuzilastvoRepo) DodajZahtevZaSudskiPostupak(ctx context.Context, zahte
 	return nil
 }
 
+func (rr *TuzilastvoRepo) DodajZahtevZaSklapanjeSporazuma(ctx context.Context, zahtev *ZahtevZaSklapanjeSporazuma) error {
+
+	_, err := rr.tabela.Collection(COLLECTIONZAHTEVZASKLAPANJESPORAZUMA).InsertOne(context.TODO(), zahtev)
+
+	if err != nil {
+		log.Println("Greska prilikom dodavanja zahteva za sklapanje sporazuma")
+		return err
+	}
+	return nil
+}
+
 func (rr *TuzilastvoRepo) DobaviZahteveZaSudskiPostupak(ctx context.Context) (ZahteviZaSudskiPostupak, error) {
 	filter := bson.D{{}}
 	return rr.filterZahteviZaSudskiPostupak(ctx, filter)
+}
+
+func (rr *TuzilastvoRepo) DobaviZahteveZaSklapanjeSporazuma(ctx context.Context) (ZahteviZaSklapanjeSporazuma, error) {
+	filter := bson.D{{}}
+	cursor, err := rr.tabela.Collection(COLLECTIONZAHTEVZASKLAPANJESPORAZUMA).Find(ctx, filter)
+	if err != nil {
+		log.Println("Ne postoje zahtevi za sklapanje sporazuma za dati filter")
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var zahtevi ZahteviZaSklapanjeSporazuma
+	for cursor.Next(context.TODO()) {
+		var zahtev ZahtevZaSklapanjeSporazuma
+		err = cursor.Decode(&zahtev)
+		if err != nil {
+			return nil, nil
+		}
+		zahtevi = append(zahtevi, &zahtev)
+	}
+	err = cursor.Err()
+	return zahtevi, nil
 }
 
 func (rr *TuzilastvoRepo) filterZahteviZaSudskiPostupak(ctx context.Context, filter interface{}) (ZahteviZaSudskiPostupak, error) {
@@ -121,4 +156,37 @@ func decodeZahteviZaSudskiPostupak(cursor *mongo.Cursor) (zahtevi ZahteviZaSudsk
 	}
 	err = cursor.Err()
 	return
+}
+
+func (rr *TuzilastvoRepo) DodajSporazum(ctx context.Context, sporazum *Sporazum) error {
+
+	_, err := rr.tabela.Collection(COLLECTIONSPORAZUM).InsertOne(context.TODO(), sporazum)
+
+	if err != nil {
+		log.Println("Greska prilikom dodavanja sporazuma")
+		return err
+	}
+	return nil
+}
+
+func (rr *TuzilastvoRepo) DobaviSporazume(ctx context.Context) (Sporazumi, error) {
+	filter := bson.D{{}}
+	cursor, err := rr.tabela.Collection(COLLECTIONSPORAZUM).Find(ctx, filter)
+	if err != nil {
+		log.Println("Ne postoje sporazumi za dati filter")
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var sporazumi Sporazumi
+	for cursor.Next(context.TODO()) {
+		var sporazum Sporazum
+		err = cursor.Decode(&sporazum)
+		if err != nil {
+			return nil, nil
+		}
+		sporazumi = append(sporazumi, &sporazum)
+	}
+	err = cursor.Err()
+	return sporazumi, nil
 }

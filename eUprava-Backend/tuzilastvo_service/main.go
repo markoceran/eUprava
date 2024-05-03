@@ -74,6 +74,18 @@ func main() {
 	dobaviZahteveZaSudskiPostupak := router.Methods(http.MethodGet).Subrouter()
 	dobaviZahteveZaSudskiPostupak.HandleFunc("/dobaviZahteveZaSudskiPostupak", tuzilastvoHandler.DobaviZahteveZaSudskiPostupak)
 
+	kreirajZahtevZaSklapanjeSporazuma := router.Methods(http.MethodPost).Subrouter()
+	kreirajZahtevZaSklapanjeSporazuma.HandleFunc("/kreirajZahtevZaSklapanjeSporazuma", tuzilastvoHandler.KreirajZahtevZaSklapanjeSporazuma)
+
+	dobaviZahteveZaSklapanjeSporazuma := router.Methods(http.MethodGet).Subrouter()
+	dobaviZahteveZaSklapanjeSporazuma.HandleFunc("/dobaviZahteveZaSklapanjeSporazuma", tuzilastvoHandler.DobaviZahteveZaSklapanjeSporazuma)
+
+	kreirajSporazum := router.Methods(http.MethodPost).Subrouter()
+	kreirajSporazum.HandleFunc("/kreirajSporazum", tuzilastvoHandler.KreirajSporazum)
+
+	dobaviSporazume := router.Methods(http.MethodGet).Subrouter()
+	dobaviSporazume.HandleFunc("/dobaviSporazume", tuzilastvoHandler.DobaviSporazume)
+
 	//Initialize the server
 	server := http.Server{
 		Addr:         ":" + port,

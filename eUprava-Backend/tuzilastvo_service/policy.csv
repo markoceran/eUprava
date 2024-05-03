@@ -1,2 +1,6 @@
 p, Tuzioc , /kreirajZahtevZaSudskiPostupak, POST
 p, , /dobaviZahteveZaSudskiPostupak, GET
+p, Tuzioc , /kreirajZahtevZaSklapanjeSporazuma, POST
+p, , /dobaviZahteveZaSklapanjeSporazuma, GET
+p, , /kreirajSporazum, POST
+p, , /dobaviSporazume, GET

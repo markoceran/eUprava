@@ -74,6 +74,10 @@ type Odgovor struct {
 
 type ZahteviZaSudskiPostupak []*ZahtevZaSudskiPostupak
 
+type ZahteviZaSklapanjeSporazuma []*ZahtevZaSklapanjeSporazuma
+
+type Sporazumi []*Sporazum
+
 func (o *ZahtevZaSudskiPostupak) ToJSON(w io.Writer) error {
 	e := json.NewEncoder(w)
 	return e.Encode(o)
@@ -100,6 +104,26 @@ func (o *ZahtevZaSklapanjeSporazuma) ToJSON(w io.Writer) error {
 }
 
 func (o *ZahtevZaSklapanjeSporazuma) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
+
+func (o *ZahteviZaSklapanjeSporazuma) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *ZahteviZaSklapanjeSporazuma) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
+
+func (o *Sporazumi) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *Sporazumi) FromJSON(r io.Reader) error {
 	d := json.NewDecoder(r)
 	return d.Decode(o)
 }
