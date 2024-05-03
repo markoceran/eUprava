@@ -3,13 +3,24 @@ package granicna_policija_service
 import (
 	"context"
 	"github.com/gorilla/mux"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	"granicna_policija_service/data"
+	"granicna_policija_service/handlers"
 	"granicna_policija_service/middlewares"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+)
+
+var (
+	JaegerAddress = os.Getenv("JAEGER_ADDRESS")
 )
 
 func main() {
@@ -19,6 +30,18 @@ func main() {
 	timeoutContext, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
+	exp, err := newExporter(JaegerAddress)
+	if err != nil {
+		log.Fatalf("failed to initialize exporter: %v", err)
+	}
+	// Create a new tracer provider with a batch span processor and the given exporter.
+	tp := newTraceProvider(exp)
+	// Handle shutdown properly so nothing leaks.
+	defer func() { _ = tp.Shutdown(timeoutContext) }()
+	otel.SetTracerProvider(tp)
+	// Finally, set the tracer that can be used for this package.
+	tracer := tp.Tracer("granicna_policija_service")
+	otel.SetTextMapPropagator(propagation.TraceContext{})
 	//Initialize the logger we are going to use, with prefix and datetime for every log
 	logger := log.New(os.Stdout, "[granicna_policija-api] ", log.LstdFlags)
 	storeLogger := log.New(os.Stdout, "[granicna_policija-store] ", log.LstdFlags)
@@ -31,6 +54,7 @@ func main() {
 	defer store.DisconnectMongo(timeoutContext)
 	store.Ping()
 
+	granicnaPolicijaHandler := handlers.NewGranicnaPolicijaHandler(logger, store, tracer)
 	//Initialize the router and add a middleware for all the requests
 	router := mux.NewRouter()
 	router.Use(middlewares.MiddlewareContentTypeSet)
@@ -41,6 +65,9 @@ func main() {
 		log.Fatal(err)
 	}
 	router.Use(casbinMiddleware)
+
+	kreirajSumnjivoLice := router.Methods(http.MethodPost).Subrouter()
+	kreirajSumnjivoLice.HandleFunc("/sumnjivo-lice/new", granicnaPolicijaHandler.CreateSumnjivoLiceHandler)
 
 	//Initialize the server
 	server := http.Server{
@@ -72,4 +99,30 @@ func main() {
 	}
 	logger.Println("Server stopped")
 
+}
+func newTraceProvider(exp sdktrace.SpanExporter) *sdktrace.TracerProvider {
+	// Ensure default SDK resources and the required service name are set.
+	r, err := resource.Merge(
+		resource.Default(),
+		resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String("reservations_service"),
+		),
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exp),
+		sdktrace.WithResource(r),
+	)
+}
+func newExporter(address string) (*jaeger.Exporter, error) {
+	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(address)))
+	if err != nil {
+		return nil, err
+	}
+	return exp, nil
 }

@@ -80,3 +80,12 @@ func (rr *GranicnaPolicijaRepo) Ping() {
 	}
 	fmt.Println(databases)
 }
+
+func (pr *GranicnaPolicijaRepo) CreateSumnjivoLice(ctx context.Context, sumnjivoLice *SumnjivoLice) error {
+	collection := pr.cli.Database("granicna_policija_db").Collection("sumnjiva_lica")
+	_, err := collection.InsertOne(ctx, sumnjivoLice)
+	if err != nil {
+		return err
+	}
+	return nil
+}
