@@ -11,5 +11,4 @@ COPY /rbac_model/rbac_model.conf/ .
 COPY /granicna_policija_service/policy.csv .
 COPY --from=builder /app/main .
 EXPOSE 8009
-
 CMD ["./main"]

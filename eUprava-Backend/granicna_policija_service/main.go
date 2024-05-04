@@ -1,4 +1,4 @@
-package granicna_policija_service
+package main
 
 import (
 	"context"
