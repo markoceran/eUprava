@@ -81,3 +81,10 @@ ZAHTEV ZA SUDSKI POSTUPAK
 {
     "opis":"test"
 }
+
+ZAHTEV ZA SKLAPANJE SPORAZUMA
+{
+    "opis":"ccc",
+    "uslovi":"ccc",
+    "kazna":"ccc"
+}
