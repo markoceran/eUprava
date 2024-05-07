@@ -89,3 +89,21 @@ func (pr *GranicnaPolicijaRepo) CreateSumnjivoLice(ctx context.Context, sumnjivo
 	}
 	return nil
 }
+
+func (pr *GranicnaPolicijaRepo) CreatePrelaz(ctx context.Context, prelaz *Prelaz) error {
+	collection := pr.cli.Database("granicna_policija_db").Collection("prelazi")
+	_, err := collection.InsertOne(ctx, prelaz)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (pr *GranicnaPolicijaRepo) CreateKrivicnaPrijava(ctx context.Context, krivicnaPrijava *KrivicnaPrijava) error {
+	collection := pr.cli.Database("granicna_policija_db").Collection("krivicne_prijave")
+	_, err := collection.InsertOne(ctx, krivicnaPrijava)
+	if err != nil {
+		return err
+	}
+	return nil
+}

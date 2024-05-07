@@ -68,6 +68,11 @@ func main() {
 
 	kreirajSumnjivoLice := router.Methods(http.MethodPost).Subrouter()
 	kreirajSumnjivoLice.HandleFunc("/sumnjivo-lice/new", granicnaPolicijaHandler.CreateSumnjivoLiceHandler)
+	kreirajPrelaz := router.Methods(http.MethodPost).Subrouter()
+	kreirajPrelaz.HandleFunc("/prelaz/new", granicnaPolicijaHandler.CreatePrelazHandler)
+
+	kreirajKrivicnuPrijavu := router.Methods(http.MethodPost).Subrouter()
+	kreirajKrivicnuPrijavu.HandleFunc("/krivicna-prijava/new", granicnaPolicijaHandler.CreateKrivicnaPrijavaHandler)
 
 	//Initialize the server
 	server := http.Server{
