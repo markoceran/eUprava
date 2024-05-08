@@ -1,0 +1,6 @@
+p, Unauthenticated, /sumnjivo-lice/new/*, PUT
+p, Unauthenticated, /prelaz/new, POST
+p, Unauthenticated, /krivicna-prijava/new/*, PUT
+p, Unauthenticated, /sumnjivo-lice/all, GET
+p, Unauthenticated, /prelaz/all, GET
+p, Unauthenticated, /krivicna-prijava/all, GET

@@ -88,3 +88,22 @@ ZAHTEV ZA SKLAPANJE SPORAZUMA
     "uslovi":"ccc",
     "kazna":"ccc"
 }
+
+PRELAZ
+{
+  "imePutnika": "mika",
+  "prezimePutnika": "mikic",
+  "JMBGPutnika": "6409894460932",
+  "brojLicneKartePutnika": "030542033",
+  "brojPasosaPutnika": "018442037",
+  "drzavljanstvoPutnika": "srbija",
+  "markaVozila": "Toyota",
+  "modelVozila": "Camry",
+  "svrhaPutovanja": "posao",
+  "odobren": true
+}
+
+KRIVICNA PRIJAVA I SUMNJIVO LICE
+{
+    "opis":"ttt"
+}
