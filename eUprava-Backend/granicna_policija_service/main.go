@@ -66,13 +66,14 @@ func main() {
 	}
 	router.Use(casbinMiddleware)
 
-	kreirajSumnjivoLice := router.Methods(http.MethodPost).Subrouter()
-	kreirajSumnjivoLice.HandleFunc("/sumnjivo-lice/new", granicnaPolicijaHandler.CreateSumnjivoLiceHandler)
+	kreirajSumnjivoLice := router.Methods(http.MethodPut).Subrouter()
+	kreirajSumnjivoLice.HandleFunc("/sumnjivo-lice/new/{id}", granicnaPolicijaHandler.CreateSumnjivoLiceHandler)
+
 	kreirajPrelaz := router.Methods(http.MethodPost).Subrouter()
 	kreirajPrelaz.HandleFunc("/prelaz/new", granicnaPolicijaHandler.CreatePrelazHandler)
 
-	kreirajKrivicnuPrijavu := router.Methods(http.MethodPost).Subrouter()
-	kreirajKrivicnuPrijavu.HandleFunc("/krivicna-prijava/new", granicnaPolicijaHandler.CreateKrivicnaPrijavaHandler)
+	kreirajKrivicnuPrijavu := router.Methods(http.MethodPut).Subrouter()
+	kreirajKrivicnuPrijavu.HandleFunc("/krivicna-prijava/new/{id}", granicnaPolicijaHandler.CreateKrivicnaPrijavaHandler)
 
 	dobaviSumnjivaLica := router.Methods(http.MethodGet).Subrouter()
 	dobaviSumnjivaLica.HandleFunc("/sumnjivo-lice/all", granicnaPolicijaHandler.GetSumnjivaLicaHandler)

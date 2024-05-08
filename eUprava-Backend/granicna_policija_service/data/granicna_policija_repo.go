@@ -160,13 +160,13 @@ func (pr *GranicnaPolicijaRepo) GetKrivicnePrijave(ctx context.Context) ([]Krivi
 	return krivicnePrijave, nil
 }
 
-func (pr *GranicnaPolicijaRepo) GetPrelazByID(ctx context.Context, id primitive.ObjectID, prelaz *Prelaz) error {
+func (pr *GranicnaPolicijaRepo) GetPrelazByID(ctx context.Context, id primitive.ObjectID) (*Prelaz, error) {
 	collection := pr.cli.Database("granicna_policija_db").Collection("prelazi")
-
+	var prelaz Prelaz
 	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&prelaz)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &prelaz, nil
 }

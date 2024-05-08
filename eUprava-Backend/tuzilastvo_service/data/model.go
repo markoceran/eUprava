@@ -7,16 +7,18 @@ import (
 )
 
 type Prelaz struct {
-	ID                   primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Datum                primitive.DateTime `bson:"datum,omitempty" json:"datum"`
-	ImePutnika           string             `bson:"imePutnika,omitempty" json:"imePutnika"`
-	PrezimePutnika       string             `bson:"prezimePutnika,omitempty" json:"prezimePutnika"`
-	JMBGPutnika          string             `bson:"JMBGPutnika,omitempty" json:"JMBGPutnika"`
-	DrzavljanstvoPutnika string             `bson:"drzavljanstvoPutnika,omitempty" json:"drzavljanstvoPutnika"`
-	MarkaVozila          string             `bson:"markaVozila,omitempty" json:"markaVozila"`
-	ModelVozila          string             `bson:"modelVozila,omitempty" json:"modelVozila"`
-	SvrhaPutovanja       string             `bson:"svrhaPutovanja,omitempty" json:"svrhaPutovanja"`
-	Odobren              bool               `bson:"odobren,omitempty" json:"odobren"`
+	ID                    primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Datum                 primitive.DateTime `bson:"datum,omitempty" json:"datum"`
+	ImePutnika            string             `bson:"imePutnika,omitempty" json:"imePutnika"`
+	PrezimePutnika        string             `bson:"prezimePutnika,omitempty" json:"prezimePutnika"`
+	JMBGPutnika           string             `bson:"JMBGPutnika,omitempty" json:"JMBGPutnika"`
+	BrojLicneKartePutnika string             `bson:"brojLicneKartePutnika,omitempty" json:"brojLicneKartePutnika,omitempty"`
+	BrojPasosaPutnika     string             `bson:"brojPasosaPutnika,omitempty" json:"brojPasosaPutnika,omitempty"`
+	DrzavljanstvoPutnika  string             `bson:"drzavljanstvoPutnika,omitempty" json:"drzavljanstvoPutnika"`
+	MarkaVozila           string             `bson:"markaVozila,omitempty" json:"markaVozila"`
+	ModelVozila           string             `bson:"modelVozila,omitempty" json:"modelVozila"`
+	SvrhaPutovanja        string             `bson:"svrhaPutovanja,omitempty" json:"svrhaPutovanja"`
+	Odobren               bool               `bson:"odobren,omitempty" json:"odobren"`
 }
 
 type KrivicnaPrijava struct {

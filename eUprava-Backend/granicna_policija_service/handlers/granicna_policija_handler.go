@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.opentelemetry.io/otel/trace"
 	"granicna_policija_service/data"
@@ -22,29 +23,38 @@ func NewGranicnaPolicijaHandler(l *log.Logger, r *data.GranicnaPolicijaRepo, t t
 }
 
 func (h *GranicnaPolicijaHandler) CreateSumnjivoLiceHandler(w http.ResponseWriter, r *http.Request) {
-	var sumnjivoLice data.SumnjivoLice
-	err := sumnjivoLice.FromJSON(r.Body)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	vars := mux.Vars(r)
+	prelazId, err := primitive.ObjectIDFromHex(vars["id"])
 	if err != nil {
-		http.Error(w, "Error decoding request body", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Id prelaza nije procitan"))
+		return
+	}
+
+	prelaz, err := h.granicnaPolicijaRepo.GetPrelazByID(ctx, prelazId)
+	if err != nil {
+		w.WriteHeader(http.StatusForbidden)
+		w.Write([]byte("Prelaz ne postoji"))
+		return
+	}
+
+	var sumnjivoLice data.SumnjivoLice
+	if err := json.NewDecoder(r.Body).Decode(&sumnjivoLice); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Pogresan format zahteva"))
 		return
 	}
 
 	sumnjivoLice.ID = primitive.NewObjectID()
-
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
-
-	// Pročitaj PrelazID iz JSON-a i traži prelaz s tim ID-om iz baze
-	var prelaz data.Prelaz
-	err = h.granicnaPolicijaRepo.GetPrelazByID(ctx, sumnjivoLice.PrelazID, &prelaz)
-	if err != nil {
-		http.Error(w, "Prelaz with provided ID not found", http.StatusNotFound)
-		return
-	}
+	sumnjivoLice.Prelaz = *prelaz
 
 	err = h.granicnaPolicijaRepo.CreateSumnjivoLice(ctx, &sumnjivoLice)
 	if err != nil {
-		http.Error(w, "Error creating Sumnjivo lice", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Greska prilikom kreiranja sumnjivog lica"))
 		return
 	}
 
@@ -53,9 +63,9 @@ func (h *GranicnaPolicijaHandler) CreateSumnjivoLiceHandler(w http.ResponseWrite
 
 func (h *GranicnaPolicijaHandler) CreatePrelazHandler(w http.ResponseWriter, r *http.Request) {
 	var prelaz data.Prelaz
-	err := prelaz.FromJSON(r.Body)
-	if err != nil {
-		http.Error(w, "Error decoding request body", http.StatusBadRequest)
+	if err := json.NewDecoder(r.Body).Decode(&prelaz); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Pogresan format zahteva"))
 		return
 	}
 
@@ -65,9 +75,10 @@ func (h *GranicnaPolicijaHandler) CreatePrelazHandler(w http.ResponseWriter, r *
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
-	err = h.granicnaPolicijaRepo.CreatePrelaz(ctx, &prelaz)
+	err := h.granicnaPolicijaRepo.CreatePrelaz(ctx, &prelaz)
 	if err != nil {
-		http.Error(w, "Error creating Prelaz", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Greska prilikom kreiranja prelaza"))
 		return
 	}
 
@@ -75,30 +86,39 @@ func (h *GranicnaPolicijaHandler) CreatePrelazHandler(w http.ResponseWriter, r *
 }
 
 func (h *GranicnaPolicijaHandler) CreateKrivicnaPrijavaHandler(w http.ResponseWriter, r *http.Request) {
-	var krivicnaPrijava data.KrivicnaPrijava
-	err := krivicnaPrijava.FromJSON(r.Body)
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	vars := mux.Vars(r)
+	prelazId, err := primitive.ObjectIDFromHex(vars["id"])
 	if err != nil {
-		http.Error(w, "Error decoding request body", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Id prelaza nije procitan"))
+		return
+	}
+
+	prelaz, err := h.granicnaPolicijaRepo.GetPrelazByID(ctx, prelazId)
+	if err != nil {
+		w.WriteHeader(http.StatusForbidden)
+		w.Write([]byte("Prelaz ne postoji"))
+		return
+	}
+
+	var krivicnaPrijava data.KrivicnaPrijava
+	if err := json.NewDecoder(r.Body).Decode(&krivicnaPrijava); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Pogresan format zahteva"))
 		return
 	}
 
 	krivicnaPrijava.ID = primitive.NewObjectID()
 	krivicnaPrijava.Datum = primitive.NewDateTimeFromTime(time.Now())
-
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
-
-	// Pročitaj PrelazID iz JSON-a i traži prelaz s tim ID-om iz baze
-	var prelaz data.Prelaz
-	err = h.granicnaPolicijaRepo.GetPrelazByID(ctx, krivicnaPrijava.PrelazID, &prelaz)
-	if err != nil {
-		http.Error(w, "Prelaz with provided ID not found", http.StatusNotFound)
-		return
-	}
+	krivicnaPrijava.Prelaz = *prelaz
 
 	err = h.granicnaPolicijaRepo.CreateKrivicnaPrijava(ctx, &krivicnaPrijava)
 	if err != nil {
-		http.Error(w, "Error creating Krivicna prijava", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Greska prilikom kreiranja krivicne prijave"))
 		return
 	}
 
