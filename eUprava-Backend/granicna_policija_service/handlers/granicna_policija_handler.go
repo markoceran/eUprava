@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.opentelemetry.io/otel/trace"
 	"granicna_policija_service/data"
@@ -32,6 +33,14 @@ func (h *GranicnaPolicijaHandler) CreateSumnjivoLiceHandler(w http.ResponseWrite
 
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
+
+	// Pročitaj PrelazID iz JSON-a i traži prelaz s tim ID-om iz baze
+	var prelaz data.Prelaz
+	err = h.granicnaPolicijaRepo.GetPrelazByID(ctx, sumnjivoLice.PrelazID, &prelaz)
+	if err != nil {
+		http.Error(w, "Prelaz with provided ID not found", http.StatusNotFound)
+		return
+	}
 
 	err = h.granicnaPolicijaRepo.CreateSumnjivoLice(ctx, &sumnjivoLice)
 	if err != nil {
@@ -79,6 +88,14 @@ func (h *GranicnaPolicijaHandler) CreateKrivicnaPrijavaHandler(w http.ResponseWr
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
 
+	// Pročitaj PrelazID iz JSON-a i traži prelaz s tim ID-om iz baze
+	var prelaz data.Prelaz
+	err = h.granicnaPolicijaRepo.GetPrelazByID(ctx, krivicnaPrijava.PrelazID, &prelaz)
+	if err != nil {
+		http.Error(w, "Prelaz with provided ID not found", http.StatusNotFound)
+		return
+	}
+
 	err = h.granicnaPolicijaRepo.CreateKrivicnaPrijava(ctx, &krivicnaPrijava)
 	if err != nil {
 		http.Error(w, "Error creating Krivicna prijava", http.StatusInternalServerError)
@@ -86,4 +103,46 @@ func (h *GranicnaPolicijaHandler) CreateKrivicnaPrijavaHandler(w http.ResponseWr
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+func (h *GranicnaPolicijaHandler) GetSumnjivaLicaHandler(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	sumnjivaLica, err := h.granicnaPolicijaRepo.GetSumnjivaLica(ctx)
+	if err != nil {
+		http.Error(w, "Error getting Sumnjiva lica", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(sumnjivaLica)
+}
+
+func (h *GranicnaPolicijaHandler) GetPrelaziHandler(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	prelazi, err := h.granicnaPolicijaRepo.GetPrelazi(ctx)
+	if err != nil {
+		http.Error(w, "Error getting Prelazi", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(prelazi)
+}
+
+func (h *GranicnaPolicijaHandler) GetKrivicnePrijaveHandler(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	krivicnePrijave, err := h.granicnaPolicijaRepo.GetKrivicnePrijave(ctx)
+	if err != nil {
+		http.Error(w, "Error getting Krivicne prijave", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(krivicnePrijave)
 }

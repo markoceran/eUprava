@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -105,5 +106,67 @@ func (pr *GranicnaPolicijaRepo) CreateKrivicnaPrijava(ctx context.Context, krivi
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (pr *GranicnaPolicijaRepo) GetSumnjivaLica(ctx context.Context) ([]SumnjivoLice, error) {
+	collection := pr.cli.Database("granicna_policija_db").Collection("sumnjiva_lica")
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var sumnjivaLica []SumnjivoLice
+	if err := cursor.All(ctx, &sumnjivaLica); err != nil {
+		return nil, err
+	}
+
+	return sumnjivaLica, nil
+}
+
+func (pr *GranicnaPolicijaRepo) GetPrelazi(ctx context.Context) ([]Prelaz, error) {
+	collection := pr.cli.Database("granicna_policija_db").Collection("prelazi")
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var prelazi []Prelaz
+	if err := cursor.All(ctx, &prelazi); err != nil {
+		return nil, err
+	}
+
+	return prelazi, nil
+}
+
+func (pr *GranicnaPolicijaRepo) GetKrivicnePrijave(ctx context.Context) ([]KrivicnaPrijava, error) {
+	collection := pr.cli.Database("granicna_policija_db").Collection("krivicne_prijave")
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var krivicnePrijave []KrivicnaPrijava
+	if err := cursor.All(ctx, &krivicnePrijave); err != nil {
+		return nil, err
+	}
+
+	return krivicnePrijave, nil
+}
+
+func (pr *GranicnaPolicijaRepo) GetPrelazByID(ctx context.Context, id primitive.ObjectID, prelaz *Prelaz) error {
+	collection := pr.cli.Database("granicna_policija_db").Collection("prelazi")
+
+	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&prelaz)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

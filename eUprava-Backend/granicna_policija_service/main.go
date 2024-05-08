@@ -58,7 +58,7 @@ func main() {
 	//Initialize the router and add a middleware for all the requests
 	router := mux.NewRouter()
 	router.Use(middlewares.MiddlewareContentTypeSet)
-	router.Use(middlewares.TokenValidationMiddleware)
+	//router.Use(middlewares.TokenValidationMiddleware)			zakomentarisano zbog testiranja, kasnije ce trebati zbog prava pristupa
 
 	casbinMiddleware, err := middlewares.InitializeCasbinMiddleware("./rbac_model.conf", "./policy.csv")
 	if err != nil {
@@ -73,6 +73,15 @@ func main() {
 
 	kreirajKrivicnuPrijavu := router.Methods(http.MethodPost).Subrouter()
 	kreirajKrivicnuPrijavu.HandleFunc("/krivicna-prijava/new", granicnaPolicijaHandler.CreateKrivicnaPrijavaHandler)
+
+	dobaviSumnjivaLica := router.Methods(http.MethodGet).Subrouter()
+	dobaviSumnjivaLica.HandleFunc("/sumnjivo-lice/all", granicnaPolicijaHandler.GetSumnjivaLicaHandler)
+
+	dobaviPrelaze := router.Methods(http.MethodGet).Subrouter()
+	dobaviPrelaze.HandleFunc("/prelaz/all", granicnaPolicijaHandler.GetPrelaziHandler)
+
+	dobaviKrivicnePrijave := router.Methods(http.MethodGet).Subrouter()
+	dobaviKrivicnePrijave.HandleFunc("/krivicna-prijava/all", granicnaPolicijaHandler.GetKrivicnePrijaveHandler)
 
 	//Initialize the server
 	server := http.Server{

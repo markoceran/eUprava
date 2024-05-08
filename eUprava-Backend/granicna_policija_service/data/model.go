@@ -20,16 +20,16 @@ type Prelaz struct {
 }
 
 type SumnjivoLice struct {
-	ID     primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Prelaz Prelaz             `bson:"prelaz,omitempty" json:"prelaz"`
-	Opis   string             `bson:"opis,omitempty" json:"opis"`
+	ID       primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	PrelazID primitive.ObjectID `bson:"prelazID,omitempty" json:"prelazID"`
+	Opis     string             `bson:"opis,omitempty" json:"opis"`
 }
 
 type KrivicnaPrijava struct {
-	ID     primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Datum  primitive.DateTime `bson:"datum,omitempty" json:"datum"`
-	Opis   string             `bson:"opis,omitempty" json:"opis"`
-	Prelaz Prelaz             `bson:"prelaz,omitempty" json:"prelaz"`
+	ID       primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	Datum    primitive.DateTime `bson:"datum,omitempty" json:"datum"`
+	Opis     string             `bson:"opis,omitempty" json:"opis"`
+	PrelazID primitive.ObjectID `bson:"prelazID,omitempty" json:"prelazID"`
 }
 
 //TODO: uraditi za ostale entitete ToJSON i FromJSON
