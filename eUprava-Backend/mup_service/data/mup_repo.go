@@ -101,6 +101,89 @@ func (rr *MupRepo) DobaviKorisnike(ctx context.Context) (Korisnici, error) {
 	return rr.filterKorisnici(ctx, filter)
 }
 
+func (rr *MupRepo) DobaviKorisnikaPoJmbg(ctx context.Context, jmbg string) (*Korisnik, error) {
+	filter := bson.M{"licnaKarta.jmbg": jmbg}
+
+	korisnik, err := rr.filterJmbg(ctx, filter)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		log.Println("Greska dobavljanja korisnika:", err)
+		return nil, err
+	}
+
+	log.Println("Korisnik:", korisnik)
+
+	return korisnik, nil
+}
+
+func (rr *MupRepo) DobaviKorisnikaPoID(ctx context.Context, id primitive.ObjectID) (*Korisnik, error) {
+	filter := bson.D{{"_id", id}}
+	var korisnik Korisnik
+
+	err := rr.tabela.Collection(COLLECTIONKORISNICI).FindOne(ctx, filter).Decode(&korisnik)
+	if err != nil {
+		return nil, err
+	}
+
+	return &korisnik, nil
+}
+
+func (rr *MupRepo) AzurirajKorisnika(ctx context.Context, korisnik *Korisnik) error {
+	filter := bson.D{{"_id", korisnik.ID}}
+	update := bson.D{{"$set", korisnik}}
+
+	_, err := rr.tabela.Collection(COLLECTIONKORISNICI).UpdateOne(ctx, filter, update)
+	if err != nil {
+		log.Println("Greška prilikom ažuriranja korisnika")
+		return err
+	}
+	return nil
+}
+
+func (h *MupRepo) ProveriLicnuKartu(korisnikId primitive.ObjectID) (bool, error) {
+	// Dobavljanje korisnika iz baze podataka
+	korisnik, err := h.DobaviKorisnikaPoID(context.Background(), korisnikId)
+	if err != nil {
+		return false, err
+	}
+
+	// Provera da li korisnik ima već izdatu ličnu kartu
+	return korisnik.LicnaKarta != nil, nil
+}
+
+func (h *MupRepo) ProveriVozackuDozvolu(korisnikId primitive.ObjectID) (bool, error) {
+	// Dobavljanje korisnika iz baze podataka
+	korisnik, err := h.DobaviKorisnikaPoID(context.Background(), korisnikId)
+	if err != nil {
+		return false, err
+	}
+
+	// Provera da li korisnik ima već izdatu ličnu kartu
+	return korisnik.Vozacka != nil, nil
+}
+
+func (h *MupRepo) ProveriSaobracajnuDozvolu(korisnikId primitive.ObjectID) (bool, error) {
+	// Dobavljanje korisnika iz baze podataka
+	korisnik, err := h.DobaviKorisnikaPoID(context.Background(), korisnikId)
+	if err != nil {
+		return false, err
+	}
+
+	// Provera da li korisnik ima već izdatu saobracajnu
+	return korisnik.Saobracajna != nil, nil
+}
+
+func (h *MupRepo) ProveriPasos(korisnikId primitive.ObjectID) (bool, error) {
+	korisnik, err := h.DobaviKorisnikaPoID(context.Background(), korisnikId)
+	if err != nil {
+		return false, err
+	}
+
+	return korisnik.Pasos != nil, nil
+}
+
 func (rr *MupRepo) filterKorisnici(ctx context.Context, filter interface{}) (Korisnici, error) {
 	cursor, err := rr.tabela.Collection(COLLECTIONKORISNICI).Find(ctx, filter)
 	if err != nil {
@@ -110,6 +193,12 @@ func (rr *MupRepo) filterKorisnici(ctx context.Context, filter interface{}) (Kor
 	defer cursor.Close(ctx)
 
 	return decodeKorisnici(cursor)
+}
+
+func (rr *MupRepo) filterJmbg(ctx context.Context, filter interface{}) (korisnik *Korisnik, err error) {
+	result := rr.tabela.Collection(COLLECTIONKORISNICI).FindOne(ctx, filter)
+	err = result.Decode(&korisnik)
+	return
 }
 
 func decodeKorisnici(cursor *mongo.Cursor) (korisnici Korisnici, err error) {

@@ -73,8 +73,17 @@ func main() {
 	dobaviKorisnike := router.Methods(http.MethodGet).Subrouter()
 	dobaviKorisnike.HandleFunc("/dobaviKorisnike", mupHandler.DobaviKorisnike)
 
-	//dobaviKorisnike := router.Methods(http.MethodGet).Subrouter()
-	//dobaviKorisnike.HandleFunc("/dobaviKorisnike", authHandler.DobaviKorisnike)
+	kreirajVozackuDozvolu := router.Methods(http.MethodPut).Subrouter()
+	kreirajVozackuDozvolu.HandleFunc("/kreirajVozackuDozvolu/{id}", mupHandler.KreirajVozackuDozvolu)
+
+	kreirajSaobracajnuDozvolu := router.Methods(http.MethodPut).Subrouter()
+	kreirajSaobracajnuDozvolu.HandleFunc("/kreirajSaobracajnuDozvolu/{id}", mupHandler.KreirajSaobracajnuDozvolu)
+
+	kreirajPasos := router.Methods(http.MethodPut).Subrouter()
+	kreirajPasos.HandleFunc("/kreirajPasos/{id}", mupHandler.KreirajPasos)
+
+	validirajDokumente := router.Methods(http.MethodPost).Subrouter()
+	validirajDokumente.HandleFunc("/validirajDokumente", mupHandler.ValidirajDokumente)
 
 	//Initialize the server
 	server := http.Server{

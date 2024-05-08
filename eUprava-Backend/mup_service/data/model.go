@@ -119,6 +119,15 @@ type NalogZaPracenje struct {
 	Datum     primitive.DateTime `bson:"datum,omitempty" json:"datum"`
 }
 
+type PodaciZaValidaciju struct {
+	JMBG           string `bson:"jmbg,omitempty" json:"jmbg,omitempty"`
+	Ime            string `bson:"ime,omitempty" json:"ime"`
+	Prezime        string `bson:"prezime,omitempty" json:"prezime"`
+	BrojLicneKarte string `bson:"brojLicneKarte,omitempty" json:"brojLicneKarte,omitempty"`
+	BrojPasosa     string `bson:"brojPasosa,omitempty" json:"brojPasosa,omitempty"`
+	Drzavljanstvo  string `bson:"drzavljanstvo,omitempty" json:"drzavljanstvo"`
+}
+
 type Korisnici []*Korisnik
 
 //TODO: uraditi za ostale entitete ToJSON i FromJSON
@@ -139,6 +148,16 @@ func (o *Korisnici) ToJSON(w io.Writer) error {
 }
 
 func (o *Korisnici) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
+
+func (o *Korisnik) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *Korisnik) FromJSON(r io.Reader) error {
 	d := json.NewDecoder(r)
 	return d.Decode(o)
 }

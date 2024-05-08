@@ -197,7 +197,7 @@ func GenerateJWT(user *data.Korisnik) (string, error) {
 	}
 
 	log.Println("id", claims.ID)
-	log.Println("korisnicko ime", claims.KorisnickoIme)
+	log.Println("korisnickoIme", claims.KorisnickoIme)
 	log.Println("rola", claims.Rola)
 	log.Println("expires", claims.ExpiresAt)
 

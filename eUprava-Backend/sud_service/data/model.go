@@ -41,6 +41,7 @@ type Predmet struct {
 	IdSudije primitive.ObjectID     `bson:"idSudije,omitempty" json:"idSudije"`
 	Zahtev   ZahtevZaSudskiPostupak `bson:"zahtev,omitempty" json:"zahtev"`
 }
+type Predmeti []*Predmet
 
 type TerminSudjenja struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty" json:"id"`
@@ -58,7 +59,55 @@ type Presuda struct {
 	IdSudije       primitive.ObjectID `bson:"idSudije,omitempty" json:"idSudije"`
 }
 
-//TODO: uraditi za ostale entitete ToJSON i FromJSON
+func (o *Predmeti) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *Predmeti) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
+
+func (o *Prelaz) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *Prelaz) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
+
+func (o *KrivicnaPrijava) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *KrivicnaPrijava) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
+
+func (o *ZahtevZaSudskiPostupak) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *ZahtevZaSudskiPostupak) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
+
+func (o *Predmet) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *Predmet) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
 
 func (o *TerminSudjenja) ToJSON(w io.Writer) error {
 	e := json.NewEncoder(w)
@@ -66,6 +115,16 @@ func (o *TerminSudjenja) ToJSON(w io.Writer) error {
 }
 
 func (o *TerminSudjenja) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
+
+func (o *Presuda) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *Presuda) FromJSON(r io.Reader) error {
 	d := json.NewDecoder(r)
 	return d.Decode(o)
 }

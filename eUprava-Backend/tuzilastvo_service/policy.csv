@@ -1,5 +1,6 @@
-p, Host, /, POST
-p, Host, /, GET
-p, Guest, /, GET
-p, Unauthenticated, /, GET
-
+p, Tuzioc , /kreirajZahtevZaSudskiPostupak, POST
+p, , /dobaviZahteveZaSudskiPostupak, GET
+p, Tuzioc , /kreirajZahtevZaSklapanjeSporazuma, POST
+p, , /dobaviZahteveZaSklapanjeSporazuma, GET
+p, , /kreirajSporazum, POST
+p, , /dobaviSporazume, GET
