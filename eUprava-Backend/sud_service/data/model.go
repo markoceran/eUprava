@@ -36,6 +36,8 @@ type ZahtevZaSudskiPostupak struct {
 	KrivicnaPrijava KrivicnaPrijava    `bson:"krivicnaPrijava,omitempty" json:"krivicnaPrijava"`
 }
 
+type Zahtevi []*ZahtevZaSudskiPostupak
+
 type Predmet struct {
 	ID       primitive.ObjectID     `bson:"_id,omitempty" json:"id"`
 	Opis     string                 `bson:"opis,omitempty" json:"opis"`
@@ -67,6 +69,16 @@ func (o *Predmeti) ToJSON(w io.Writer) error {
 }
 
 func (o *Predmeti) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
+
+func (o *Zahtevi) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *Zahtevi) FromJSON(r io.Reader) error {
 	d := json.NewDecoder(r)
 	return d.Decode(o)
 }
