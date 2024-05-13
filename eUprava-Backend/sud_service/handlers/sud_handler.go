@@ -121,7 +121,7 @@ func (h *SudHandler) DodajPredmetePoZahtjevima(writer http.ResponseWriter, req *
 		predmet := &data.Predmet{
 			Opis:   zahtjev.Opis,
 			Datum:  currentDateTime,
-			Zahtev: data.ZahtevZaSudskiPostupak{},
+			Zahtev: *zahtjev,
 		}
 
 		err = h.sudRepo.DodajPredmet(ctx, predmet)

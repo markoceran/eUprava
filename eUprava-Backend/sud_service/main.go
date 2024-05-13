@@ -114,7 +114,6 @@ func main() {
 
 	dodajPredmetePoZahtjevima := router.Methods(http.MethodPost).Subrouter()
 	dodajPredmetePoZahtjevima.HandleFunc("/predmeti/zahtjevi", sudHandler.DodajPredmetePoZahtjevima)
-	dodajPredmetePoZahtjevima.Use(sudHandler.MiddlewareDeserialization)
 
 	//Initialize the server
 	server := http.Server{
