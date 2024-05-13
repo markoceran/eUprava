@@ -8,19 +8,22 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"log"
 	"net/http"
+	"sud_service/client"
 	"sud_service/data"
+	"time"
 )
 
 type KeyProduct struct{}
 
 type SudHandler struct {
-	logger  *log.Logger
-	sudRepo *data.SudRepo
-	tracer  trace.Tracer
+	logger           *log.Logger
+	sudRepo          *data.SudRepo
+	tracer           trace.Tracer
+	tuzilastvoClient client.TuzilastvoClient
 }
 
-func NewSudHandler(l *log.Logger, r *data.SudRepo, t trace.Tracer) *SudHandler {
-	return &SudHandler{l, r, t}
+func NewSudHandler(l *log.Logger, r *data.SudRepo, t trace.Tracer, tc client.TuzilastvoClient) *SudHandler {
+	return &SudHandler{l, r, t, tc}
 }
 
 func (h *SudHandler) DobaviPredmete(rw http.ResponseWriter, r *http.Request) {
@@ -96,6 +99,38 @@ func (h *SudHandler) DodajPredmet(writer http.ResponseWriter, req *http.Request)
 		writer.Write([]byte("Greska prilikom dodavanja predmeta"))
 		span.SetStatus(codes.Error, "Greska prilikom dodavanja predmeta")
 		return
+	}
+
+	writer.WriteHeader(http.StatusOK)
+}
+
+func (h *SudHandler) DodajPredmetePoZahtjevima(writer http.ResponseWriter, req *http.Request) {
+	ctx, span := h.tracer.Start(req.Context(), "SudHandler.DodajPredmet")
+	defer span.End()
+
+	zahtjevi, err := h.tuzilastvoClient.DobaviAktivneZahtjeve(req.Context())
+	if err != nil {
+		log.Printf("Greska prilikom dodavanja zahtjeva: %v", err)
+		http.Error(writer, "Greska prilikom dodavanja zahtjeva", http.StatusServiceUnavailable)
+	}
+
+	for _, zahtjev := range zahtjevi {
+		currentTime := time.Now()
+		currentDateTime := primitive.NewDateTimeFromTime(currentTime)
+
+		predmet := &data.Predmet{
+			Opis:   zahtjev.Opis,
+			Datum:  currentDateTime,
+			Zahtev: data.ZahtevZaSudskiPostupak{},
+		}
+
+		err = h.sudRepo.DodajPredmet(ctx, predmet)
+		if err != nil {
+			writer.WriteHeader(http.StatusBadRequest)
+			writer.Write([]byte("Greska prilikom dodavanja predmeta"))
+			span.SetStatus(codes.Error, "Greska prilikom dodavanja predmeta")
+			return
+		}
 	}
 
 	writer.WriteHeader(http.StatusOK)

@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/sony/gobreaker"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/propagation"
@@ -13,7 +15,9 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sud_service/client"
 	"sud_service/data"
+	"sud_service/domain"
 	"sud_service/handlers"
 	"sud_service/middlewares"
 	"time"
@@ -54,17 +58,49 @@ func main() {
 	defer store.DisconnectMongo(timeoutContext)
 	store.Ping()
 
-	sudHandler := handlers.NewSudHandler(logger, store, tracer)
+	tuzilastvoClient := &http.Client{
+		Transport: &http.Transport{
+			MaxIdleConns:        10,
+			MaxIdleConnsPerHost: 10,
+			MaxConnsPerHost:     10,
+		},
+	}
+	tuzilastvoBreaker := gobreaker.NewCircuitBreaker(
+		gobreaker.Settings{
+			Name:        "tuzilastvo",
+			MaxRequests: 1,
+			Timeout:     10 * time.Second,
+			Interval:    0,
+			ReadyToTrip: func(counts gobreaker.Counts) bool {
+				return counts.ConsecutiveFailures > 2
+			},
+			OnStateChange: func(name string, from, to gobreaker.State) {
+				logger.Printf("CB '%s' changed from '%s' to '%s'\n", name, from, to)
+			},
+			IsSuccessful: func(err error) bool {
+				if err == nil {
+					return true
+				}
+				errResp, ok := err.(domain.ErrResp)
+				return ok && errResp.StatusCode >= 400 && errResp.StatusCode < 500
+			},
+		},
+	)
+
+	tuzilastvUri := fmt.Sprintf("http://%s:%s", os.Getenv("TUZILASTVO_SERVICE_HOST"), os.Getenv("TUZILASTVO_SERVICE_PORT"))
+	tuzilastvo := client.NewTuzilastvoClient(tuzilastvoClient, tuzilastvUri, tuzilastvoBreaker)
+
+	sudHandler := handlers.NewSudHandler(logger, store, tracer, tuzilastvo)
 
 	//Initialize the router and add a middleware for all the requests
 	router := mux.NewRouter()
 	router.Use(middlewares.MiddlewareContentTypeSet)
 
-	//casbinMiddleware, err := middlewares.InitializeCasbinMiddleware("./rbac_model.conf", "./policy.csv")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//router.Use(casbinMiddleware)
+	casbinMiddleware, err := middlewares.InitializeCasbinMiddleware("./rbac_model.conf", "./policy.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	router.Use(casbinMiddleware)
 
 	dobaviPredmete := router.Methods(http.MethodGet).Subrouter()
 	dobaviPredmete.HandleFunc("/predmeti", sudHandler.DobaviPredmete)
@@ -75,6 +111,10 @@ func main() {
 
 	dobaviPredmetPoId := router.Methods(http.MethodGet).Subrouter()
 	dobaviPredmetPoId.HandleFunc("/predmeti/{id}", sudHandler.DobaviPredmetPoId)
+
+	dodajPredmetePoZahtjevima := router.Methods(http.MethodPost).Subrouter()
+	dodajPredmetePoZahtjevima.HandleFunc("/predmeti/zahtjevi", sudHandler.DodajPredmetePoZahtjevima)
+	dodajPredmetePoZahtjevima.Use(sudHandler.MiddlewareDeserialization)
 
 	//Initialize the server
 	server := http.Server{
@@ -109,15 +149,25 @@ func main() {
 }
 
 func newTraceProvider(exp sdktrace.SpanExporter) *sdktrace.TracerProvider {
-	// Ensure default SDK resources and the required service name are set.
-	r, err := resource.Merge(
-		resource.Default(),
-		resource.NewWithAttributes(
-			semconv.SchemaURL,
-			semconv.ServiceNameKey.String("reservations_service"),
+	// Ensure default SDK resources are set.
+	r := resource.Default()
+
+	// Set the service name.
+	serviceName := "sud_service"
+
+	// Merge additional attributes.
+	mergedResource, err := resource.New(
+		context.Background(),
+		resource.WithAttributes(
+			semconv.ServiceNameKey.String(serviceName),
 		),
 	)
+	if err != nil {
+		panic(err)
+	}
 
+	// Merge default and additional resources.
+	r, err = resource.Merge(r, mergedResource)
 	if err != nil {
 		panic(err)
 	}
@@ -127,6 +177,7 @@ func newTraceProvider(exp sdktrace.SpanExporter) *sdktrace.TracerProvider {
 		sdktrace.WithResource(r),
 	)
 }
+
 func newExporter(address string) (*jaeger.Exporter, error) {
 	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(address)))
 	if err != nil {

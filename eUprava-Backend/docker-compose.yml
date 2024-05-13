@@ -13,6 +13,7 @@ services:
     depends_on:
       - tuzilastvo_service
       - auth_service
+      - sud_service
     networks:
       - network
 
@@ -124,6 +125,9 @@ services:
       SUD_SERVICE_PORT: ${SUD_SERVICE_PORT}
       AUTH_SERVICE_PORT: ${AUTH_SERVICE_PORT}
       AUTH_SERVICE_HOST: ${AUTH_SERVICE_HOST}
+      TUZILASTVO_SERVICE_HOST: ${TUZILASTVO_SERVICE_HOST}
+      TUZILASTVO_SERVICE_PORT: ${TUZILASTVO_SERVICE_PORT}
+
       SECRET_KEY: ${SECRET_KEY}
       JAEGER_ADDRESS: ${JAEGER_ADDRESS}
     depends_on:
