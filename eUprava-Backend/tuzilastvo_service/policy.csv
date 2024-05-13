@@ -1,6 +1,7 @@
-p, Tuzioc , /kreirajZahtevZaSudskiPostupak, POST
+p, Tuzioc , /kreirajZahtevZaSudskiPostupak/*, PUT
 p, , /dobaviZahteveZaSudskiPostupak, GET
-p, Tuzioc , /kreirajZahtevZaSklapanjeSporazuma, POST
+p, Tuzioc , /kreirajZahtevZaSklapanjeSporazuma/*, PUT
 p, , /dobaviZahteveZaSklapanjeSporazuma, GET
 p, , /kreirajSporazum, POST
 p, , /dobaviSporazume, GET
+p, , /krivicnePrijave, GET

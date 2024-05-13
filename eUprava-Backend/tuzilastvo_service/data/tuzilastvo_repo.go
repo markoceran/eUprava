@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -189,4 +190,28 @@ func (rr *TuzilastvoRepo) DobaviSporazume(ctx context.Context) (Sporazumi, error
 	}
 	err = cursor.Err()
 	return sporazumi, nil
+}
+
+func (rr *TuzilastvoRepo) DobaviZahtevZaSudskiPostupakPoPrijavi(ctx context.Context, id primitive.ObjectID) (*ZahtevZaSudskiPostupak, error) {
+	filter := bson.D{{"krivicnaPrijava._id", id}}
+	var zahtev ZahtevZaSudskiPostupak
+
+	err := rr.tabela.Collection(COLLECTIONZAHTEVZASUDSKIPOSTUPAK).FindOne(ctx, filter).Decode(&zahtev)
+	if err != nil {
+		return nil, err
+	}
+
+	return &zahtev, nil
+}
+
+func (rr *TuzilastvoRepo) DobaviZahtevZaSklapanjeSporazumaPoPrijavi(ctx context.Context, id primitive.ObjectID) (*ZahtevZaSklapanjeSporazuma, error) {
+	filter := bson.D{{"krivicnaPrijava._id", id}}
+	var zahtev ZahtevZaSklapanjeSporazuma
+
+	err := rr.tabela.Collection(COLLECTIONZAHTEVZASKLAPANJESPORAZUMA).FindOne(ctx, filter).Decode(&zahtev)
+	if err != nil {
+		return nil, err
+	}
+
+	return &zahtev, nil
 }

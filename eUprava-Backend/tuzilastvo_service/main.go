@@ -68,14 +68,14 @@ func main() {
 	}
 	router.Use(casbinMiddleware)
 
-	kreirajZahtevZaSudskiPostupak := router.Methods(http.MethodPost).Subrouter()
-	kreirajZahtevZaSudskiPostupak.HandleFunc("/kreirajZahtevZaSudskiPostupak", tuzilastvoHandler.KreirajZahtevZaSudskiPostupak)
+	kreirajZahtevZaSudskiPostupak := router.Methods(http.MethodPut).Subrouter()
+	kreirajZahtevZaSudskiPostupak.HandleFunc("/kreirajZahtevZaSudskiPostupak/{id}", tuzilastvoHandler.KreirajZahtevZaSudskiPostupak)
 
 	dobaviZahteveZaSudskiPostupak := router.Methods(http.MethodGet).Subrouter()
 	dobaviZahteveZaSudskiPostupak.HandleFunc("/dobaviZahteveZaSudskiPostupak", tuzilastvoHandler.DobaviZahteveZaSudskiPostupak)
 
-	kreirajZahtevZaSklapanjeSporazuma := router.Methods(http.MethodPost).Subrouter()
-	kreirajZahtevZaSklapanjeSporazuma.HandleFunc("/kreirajZahtevZaSklapanjeSporazuma", tuzilastvoHandler.KreirajZahtevZaSklapanjeSporazuma)
+	kreirajZahtevZaSklapanjeSporazuma := router.Methods(http.MethodPut).Subrouter()
+	kreirajZahtevZaSklapanjeSporazuma.HandleFunc("/kreirajZahtevZaSklapanjeSporazuma/{id}", tuzilastvoHandler.KreirajZahtevZaSklapanjeSporazuma)
 
 	dobaviZahteveZaSklapanjeSporazuma := router.Methods(http.MethodGet).Subrouter()
 	dobaviZahteveZaSklapanjeSporazuma.HandleFunc("/dobaviZahteveZaSklapanjeSporazuma", tuzilastvoHandler.DobaviZahteveZaSklapanjeSporazuma)
@@ -85,6 +85,9 @@ func main() {
 
 	dobaviSporazume := router.Methods(http.MethodGet).Subrouter()
 	dobaviSporazume.HandleFunc("/dobaviSporazume", tuzilastvoHandler.DobaviSporazume)
+
+	dobaviKrivicnePrijave := router.Methods(http.MethodGet).Subrouter()
+	dobaviKrivicnePrijave.HandleFunc("/krivicnePrijave", tuzilastvoHandler.DobaviKrivicnePrijaveOdGranicnePolicjie)
 
 	//Initialize the server
 	server := http.Server{
