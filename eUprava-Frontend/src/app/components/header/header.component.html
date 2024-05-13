@@ -1,0 +1,16 @@
+<nav class="nav">
+  <ul class="navbar">
+    <li class="nav-item">
+      <a class="nav-link" *ngIf="isLoggedIn()" (click)="logout()">Logout</a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" *ngIf="isLoggedIn() && role === 'Gradjanin'" aria-pressed="true">Gradjanin</a>
+      <a class="nav-link" *ngIf="isLoggedIn() && role === 'Tuzioc'" aria-pressed="true">Tuzioc</a>
+      <a class="nav-link" *ngIf="isLoggedIn() && role === 'Policajac'" aria-pressed="true">Policajac</a>
+      <a class="nav-link" *ngIf="isLoggedIn() && role === 'GranicniSluzbenik'" aria-pressed="true">GranicniSluzbenik</a>
+      <a class="nav-link" *ngIf="isLoggedIn() && role === 'Istrazitelj'" aria-pressed="true">Istrazitelj</a>
+      <a class="nav-link" *ngIf="isLoggedIn() && role === 'Sudija'" aria-pressed="true">Sudija</a>
+    </li>
+  </ul>
+</nav>

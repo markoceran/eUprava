@@ -1,0 +1,40 @@
+<div class="parent clearfix">
+  <div class="bg-illustration">
+  
+  </div>
+
+  <div class="login">
+    <div class="container">
+      <h1>Prijavite se da biste pristupili svom nalogu</h1>
+
+      <div class="login-form">
+        <form [formGroup]="formGroup">
+          <label for="korisnickoIme"><b>Korisničko ime:</b></label>
+          <div>
+            <input type="text" id="korisnickoIme" name="korisnickoIme" placeholder="korisnickoIme" class="form-control" formControlName="korisnickoIme"
+                   [ngClass]="{ 'is-invalid': loginGroup['korisnickoIme'].errors}">
+            <div *ngIf="loginGroup['korisnickoIme'].errors" class="invalid-feedback">
+              <div *ngIf="loginGroup['korisnickoIme'].errors['required']">Username is required.</div>
+            </div>
+          </div>
+          <label for="lozinka"><b>Lozinka:</b></label>
+          <div>
+            <input type="password" id="lozinka" name="lozinka" placeholder="lozinka" maxlength="30" class="form-control" formControlName="lozinka"
+                   [ngClass]="{ 'is-invalid': loginGroup['lozinka'].errors}">
+            <div *ngIf="loginGroup['lozinka'].errors" class="invalid-feedback">
+              <div *ngIf="loginGroup['lozinka'].errors['required']">Password is required.</div>
+            </div>
+          </div>
+
+          <button type="submit" (click)="onSubmit()" class="btn btn-primary">Login</button>
+          <div *ngIf="formGroup.errors?.['unauthenticated']" class="incorrect-credentials">
+            Username or Password Incorrect!
+          </div>
+
+        </form>
+        <br>
+        <br>
+      </div>
+    </div>
+  </div>
+</div>
