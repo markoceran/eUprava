@@ -62,7 +62,9 @@ func (h *GranicnaPolicijaHandler) CreateSumnjivoLiceHandler(w http.ResponseWrite
 }
 
 func (h *GranicnaPolicijaHandler) CreatePrelazHandler(w http.ResponseWriter, r *http.Request) {
+
 	var prelaz data.Prelaz
+
 	if err := json.NewDecoder(r.Body).Decode(&prelaz); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Pogresan format zahteva"))
@@ -84,6 +86,49 @@ func (h *GranicnaPolicijaHandler) CreatePrelazHandler(w http.ResponseWriter, r *
 
 	w.WriteHeader(http.StatusCreated)
 }
+
+//func (h *GranicnaPolicijaHandler) CreatePrelazHandler(w http.ResponseWriter, r *http.Request) {
+//	var prelaz data.Prelaz
+//
+//	if err := json.NewDecoder(r.Body).Decode(&prelaz); err != nil {
+//		w.WriteHeader(http.StatusBadRequest)
+//		w.Write([]byte("Pogresan format zahtjeva"))
+//		return
+//	}
+//
+//	// Validacija dokumenata prije kreiranja prelaza
+//	resp, err := http.Post("http://localhost:8002/validirajDokumente", "application/json", bytes.NewBufferString(fmt.Sprintf(`{"JMBG": "%s", "Ime": "%s", "Prezime": "%s", "BrojLicneKarte": "%s", "BrojPasosa": "%s", "Drzavljanstvo": "%s"}`, prelaz.JMBGPutnika, prelaz.ImePutnika, prelaz.PrezimePutnika, prelaz.BrojLicneKartePutnika, prelaz.BrojPasosaPutnika, prelaz.DrzavljanstvoPutnika)))
+//	if err != nil {
+//		w.WriteHeader(http.StatusInternalServerError)
+//		w.Write([]byte("Greska prilikom slanja zahtjeva za validaciju"))
+//		return
+//	}
+//	defer resp.Body.Close()
+//
+//	// Provjera odgovora validacije
+//	if resp.StatusCode != http.StatusOK {
+//		w.WriteHeader(resp.StatusCode)
+//		responseMessage, _ := ioutil.ReadAll(resp.Body)
+//		w.Write(responseMessage)
+//		return
+//	}
+//
+//	// Ako su dokumenti validni, nastavljamo sa kreiranjem prelaza
+//	prelaz.ID = primitive.NewObjectID()
+//	prelaz.Datum = primitive.NewDateTimeFromTime(time.Now())
+//
+//	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+//	defer cancel()
+//
+//	err = h.granicnaPolicijaRepo.CreatePrelaz(ctx, &prelaz)
+//	if err != nil {
+//		w.WriteHeader(http.StatusInternalServerError)
+//		w.Write([]byte("Greska prilikom kreiranja prelaza"))
+//		return
+//	}
+//
+//	w.WriteHeader(http.StatusCreated)
+//}
 
 func (h *GranicnaPolicijaHandler) CreateKrivicnaPrijavaHandler(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
