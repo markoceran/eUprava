@@ -18,8 +18,10 @@ import (
 )
 
 var (
-	authServiceHost = os.Getenv("AUTH_SERVICE_HOST")
-	authServicePort = os.Getenv("AUTH_SERVICE_PORT")
+	authServiceHost            = os.Getenv("AUTH_SERVICE_HOST")
+	authServicePort            = os.Getenv("AUTH_SERVICE_PORT")
+	granicaPolicijaServiceHost = os.Getenv("GRANICNA_POLICIJA_SERVICE_HOST")
+	granicaPolicijaServicePort = os.Getenv("GRANICNA_POLICIJA_SERVICE_PORT")
 )
 
 type KeyProduct struct{}
@@ -525,4 +527,135 @@ func dokumentJeIstekao(istice primitive.DateTime) bool {
 	log.Println("Trenutno", trenutno)
 	// Compare Istice with the current date
 	return trenutno.After(isticeDate)
+}
+
+//KREIRANJE FUNKCIJE ZA NOVI NALOG
+
+func (h *MupHandler) DodajNalogZaPracenje(lice data.SumnjivoLice) error {
+
+	var noviNalog data.NalogZaPracenje
+
+	noviNalog.ID = primitive.NewObjectID()
+
+	korisnik, err := h.mupRepo.DobaviKorisnikaPoJmbg(context.Background(), lice.Prelaz.JMBGPutnika)
+	if err != nil {
+		return err
+	}
+
+	noviNalog.Gradjanin = korisnik
+	noviNalog.Opis = lice.Opis
+	noviNalog.Datum = primitive.NewDateTimeFromTime(time.Now().Truncate(24 * time.Hour))
+
+	err = h.mupRepo.DodajNalogZaPracenje(&noviNalog)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *MupHandler) KreirajNalogZaPracenje(rw http.ResponseWriter, r *http.Request) {
+	ctx, span := h.tracer.Start(r.Context(), "MupHandler.DobaviSumnjivoLice")
+	defer span.End()
+
+	dobaviSumnjivoLiceEndpoint := fmt.Sprintf("http://%s:%s/sumnjivo-lice/all", granicaPolicijaServiceHost, granicaPolicijaServicePort)
+	log.Println(dobaviSumnjivoLiceEndpoint)
+
+	// Create an HTTP request
+	req, err := http.NewRequestWithContext(ctx, "GET", dobaviSumnjivoLiceEndpoint, nil)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Greska prilikom kreiranja zahteva"))
+		span.SetStatus(codes.Error, "Greska prilikom kreiranja zahteva")
+		return
+	}
+
+	// Make the HTTP request
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Greska prilikom slanja zahteva"))
+		span.SetStatus(codes.Error, "Greska prilikom slanja zahteva")
+		return
+	}
+	defer resp.Body.Close()
+
+	// Check if resp is nil before further processing
+	if resp == nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte("Nil response from server"))
+		span.SetStatus(codes.Error, "Nil response from server")
+		return
+	}
+
+	// Check the response status code
+	if resp.StatusCode != http.StatusOK {
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Greska prilikom izvrsavanja zahteva u granicna policija servisu"))
+		span.SetStatus(codes.Error, "Greska prilikom izvrsavanja zahteva u granicna policija servisu")
+		return
+	}
+
+	// Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		rw.WriteHeader(http.StatusNotFound)
+		rw.Write([]byte("Greska prilikom citanja odgovora"))
+		span.SetStatus(codes.Error, "Greska prilikom citanja odgovora")
+		return
+	}
+
+	// Unmarshal the response body into a Korisnik object
+	var sumnjivaLica []*data.SumnjivoLice
+	if errUnmarshal := json.Unmarshal(body, &sumnjivaLica); errUnmarshal != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte("Unmarshal greska tela odgovora"))
+		span.SetStatus(codes.Error, "Unmarshal greska tela odgovora")
+		return
+	}
+
+	sumnjivoLiceMap := make(map[string]*data.SumnjivoLice)
+	for _, sumnjivoLice := range sumnjivaLica {
+		sumnjivoLiceMap[sumnjivoLice.ID.Hex()] = sumnjivoLice
+	}
+
+	for _, sumnjivolice := range sumnjivoLiceMap {
+
+		if nalog, _ := h.mupRepo.DobaviNalogPoSumjivomLicu(ctx, sumnjivolice.Prelaz.JMBGPutnika); nalog != nil {
+			continue
+		} else {
+			// Pozivamo funkciju za kreiranje novog naloga u bazi podataka
+			err := h.DodajNalogZaPracenje(*sumnjivolice)
+			if err != nil {
+				rw.WriteHeader(http.StatusInternalServerError)
+				rw.Write([]byte("Greska prilikom kreiranja naloga za pracenje"))
+				span.SetStatus(codes.Error, "Greska prilikom kreiranja naloga za pracenje")
+				return
+			}
+		}
+	}
+
+	rw.WriteHeader(http.StatusOK)
+}
+
+func (h *MupHandler) DobaviNalogeZaPracenje(rw http.ResponseWriter, r *http.Request) {
+	ctx, span := h.tracer.Start(r.Context(), "MupHandler.DobaviNalogeZaPracenje")
+	defer span.End()
+
+	nalozi, err := h.mupRepo.DobaviNalogeZaPracenje(ctx)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Greska"))
+		span.SetStatus(codes.Error, "Greska")
+	}
+
+	if nalozi == nil {
+		return
+	}
+
+	err = nalozi.ToJSON(rw)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Greska prilikom konvertovanja u JSON"))
+		span.SetStatus(codes.Error, "Greska prilikom konvertovanja u JSON")
+	}
 }

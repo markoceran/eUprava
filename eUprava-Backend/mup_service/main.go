@@ -79,6 +79,12 @@ func main() {
 	kreirajSaobracajnuDozvolu := router.Methods(http.MethodPut).Subrouter()
 	kreirajSaobracajnuDozvolu.HandleFunc("/kreirajSaobracajnuDozvolu/{id}", mupHandler.KreirajSaobracajnuDozvolu)
 
+	kreirajNalogZaPracenje := router.Methods(http.MethodPost).Subrouter()
+	kreirajNalogZaPracenje.HandleFunc("/kreirajNalogZaPracenje", mupHandler.KreirajNalogZaPracenje)
+
+	dobaviNalogeZaPracenje := router.Methods(http.MethodGet).Subrouter()
+	dobaviNalogeZaPracenje.HandleFunc("/dobaviNalogeZaPracenje", mupHandler.DobaviNalogeZaPracenje)
+
 	kreirajPasos := router.Methods(http.MethodPut).Subrouter()
 	kreirajPasos.HandleFunc("/kreirajPasos/{id}", mupHandler.KreirajPasos)
 

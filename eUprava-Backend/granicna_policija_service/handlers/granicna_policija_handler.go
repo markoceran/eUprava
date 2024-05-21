@@ -12,7 +12,13 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
+)
+
+var (
+	mupServiceHost  = os.Getenv("MUP_SERVICE_HOST")
+	muphServicePort = os.Getenv("MUP_SERVICE_PORT")
 )
 
 type GranicnaPolicijaHandler struct {
@@ -64,7 +70,8 @@ func (h *GranicnaPolicijaHandler) CreateSumnjivoLiceHandler(w http.ResponseWrite
 	w.WriteHeader(http.StatusCreated)
 }
 
-func validateDocuments(prelaz *data.Prelaz) error {
+func validateDocuments(prelaz *data.Prelaz) (bool, error) {
+	validirajDokumenteEndpoint := fmt.Sprintf("http://%s:%s/validirajDokumente", mupServiceHost, muphServicePort)
 
 	podaciZaValidaciju := data.PodaciZaValidaciju{
 		Ime:            prelaz.ImePutnika,
@@ -75,38 +82,44 @@ func validateDocuments(prelaz *data.Prelaz) error {
 		Drzavljanstvo:  prelaz.DrzavljanstvoPutnika,
 	}
 
-	jsonBody, err := json.Marshal(podaciZaValidaciju)
+	requestBody, err := json.Marshal(podaciZaValidaciju)
 	if err != nil {
-		return fmt.Errorf("Greška prilikom marshalling-a PodaciZaValidaciju: %v", err)
+		fmt.Println("Greska prilikom serijalizacije podataka:", err)
+		return false, err
 	}
 
-	req, err := http.NewRequest("POST", "http://localhost:8002/validirajDokumente", bytes.NewBuffer(jsonBody))
+	req, err := http.NewRequestWithContext(context.Background(), "POST", validirajDokumenteEndpoint, bytes.NewBuffer(requestBody))
 	if err != nil {
-		return fmt.Errorf("Greška prilikom kreiranja HTTP zahtjeva: %v", err)
+		fmt.Println("Greska prilikom kreiranja zahteva:", err)
+		return false, err
 	}
-
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{
-		Timeout: 10 * time.Second,
-	}
-
-	resp, err := client.Do(req)
+	// Make the HTTP request
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("Greška prilikom izvršavanja HTTP zahtjeva: %v", err)
+		fmt.Println("Greska prilikom kreiranja zahteva:", err)
+		return false, err
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("Greška prilikom čitanja odgovora: %v", err)
-	}
-
+	// Check the response
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("HTTP zahtjev nije uspio, status kod: %d, odgovor: %s", resp.StatusCode, string(body))
+		// Read the response body
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Println("Greska prilikom citanja tela odgovora:", err)
+			return false, err
+		}
+		return false, fmt.Errorf(string(body))
 	}
 
-	return nil
+	// Check the response status code
+	if resp.StatusCode == http.StatusOK {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 func (h *GranicnaPolicijaHandler) CreatePrelazHandler(w http.ResponseWriter, r *http.Request) {
@@ -119,9 +132,11 @@ func (h *GranicnaPolicijaHandler) CreatePrelazHandler(w http.ResponseWriter, r *
 	}
 
 	// Validiraj dokumente prije kreiranja Prelaza
-	if err := validateDocuments(&prelaz); err != nil {
+	validno, validacijaError := validateDocuments(&prelaz)
+	if !validno {
+		errorMsg := "Dokumenti nisu validni: " + validacijaError.Error()
 		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte("Dokumenti nisu validni"))
+		w.Write([]byte(errorMsg))
 		return
 	}
 

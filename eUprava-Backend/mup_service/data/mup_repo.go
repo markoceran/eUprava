@@ -15,8 +15,9 @@ import (
 )
 
 const (
-	DATABASE            = "mup"
-	COLLECTIONKORISNICI = "korisnici"
+	DATABASE                  = "mup"
+	COLLECTIONKORISNICI       = "korisnici"
+	COLLECTIONNALOGZAPRACENJE = "nalogZaPracenje"
 )
 
 type MupRepo struct {
@@ -162,6 +163,51 @@ func (h *MupRepo) ProveriVozackuDozvolu(korisnikId primitive.ObjectID) (bool, er
 
 	// Provera da li korisnik ima već izdatu ličnu kartu
 	return korisnik.Vozacka != nil, nil
+}
+
+func (rr *MupRepo) DobaviNalogPoSumjivomLicu(ctx context.Context, jmbg string) (*NalogZaPracenje, error) {
+	filter := bson.D{{"gradjanin.licnaKarta.jmbg", jmbg}}
+	var nalogzaPracenje NalogZaPracenje
+
+	err := rr.tabela.Collection(COLLECTIONNALOGZAPRACENJE).FindOne(ctx, filter).Decode(&nalogzaPracenje)
+	if err != nil {
+		return nil, err
+	}
+
+	return &nalogzaPracenje, nil
+}
+
+func (rr *MupRepo) DodajNalogZaPracenje(nalog *NalogZaPracenje) error {
+
+	_, err := rr.tabela.Collection(COLLECTIONNALOGZAPRACENJE).InsertOne(context.TODO(), nalog)
+
+	if err != nil {
+		log.Println("Greska prilikom dodavanja korisnika")
+		return err
+	}
+	return nil
+}
+
+func (rr *MupRepo) DobaviNalogeZaPracenje(ctx context.Context) (NaloziZaPracenje, error) {
+	filter := bson.D{{}}
+	cursor, err := rr.tabela.Collection(COLLECTIONNALOGZAPRACENJE).Find(ctx, filter)
+	if err != nil {
+		log.Println("Ne postoje nalozi za pracenje za dati filter")
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var nalozi NaloziZaPracenje
+	for cursor.Next(context.TODO()) {
+		var nalog NalogZaPracenje
+		err = cursor.Decode(&nalog)
+		if err != nil {
+			return nil, nil
+		}
+		nalozi = append(nalozi, &nalog)
+	}
+	err = cursor.Err()
+	return nalozi, nil
 }
 
 func (h *MupRepo) ProveriSaobracajnuDozvolu(korisnikId primitive.ObjectID) (bool, error) {
