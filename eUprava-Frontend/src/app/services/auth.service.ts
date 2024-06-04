@@ -4,6 +4,7 @@ import { Observable } from "rxjs";
 import { environment } from "src/environments/environment";
 import { LoginDTO } from "../dto/loginDTO";
 import { jwtDecode } from 'jwt-decode';
+import { User } from "../models/user";
 
 @Injectable({
 providedIn: 'root'
@@ -17,6 +18,11 @@ export class AuthService {
   public Login(loginDTO: LoginDTO): Observable<string> {
     return this.http.post(`${environment.baseApiUrl}/${this.url}/login`, loginDTO, {responseType : 'text'});
   }
+
+  public getUser(userId: any): Observable<User> {
+    return this.http.get<User>(`${environment.baseApiUrl}/${this.url}/korisnik/`+ userId);
+  }
+
 
   isLoggedIn(): boolean {
     if (!localStorage.getItem('authToken')) {
@@ -53,6 +59,31 @@ export class AuthService {
    extractClaims(): any {
      return this.parseToken();
    }
+
+   getUserIdFromToken(): any {
+    const token = localStorage.getItem('authToken');
+
+    if (token) {
+      try {
+        const payload = token.split('.')[1];
+        const decodedPayload = atob(payload);
+        const user = JSON.parse(decodedPayload);
+
+        if (user && user.id) {
+          const id = user.id;
+          return id;
+        } else {
+          console.error('Invalid user payload:', user);
+        }
+      } catch (error) {
+        console.error('Error decoding token payload:', error);
+      }
+    } else {
+      console.error('Token not found.');
+    }
+
+    return null;
+  }
  
    // Example function to check if the token is expired
    isTokenExpired(): boolean {

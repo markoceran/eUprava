@@ -1,0 +1,31 @@
+<app-header></app-header>
+<div class="container">
+  <h2>Krivične Prijave</h2>
+  <div *ngIf="krivicnePrijave == null " class="no-data">No data available</div>
+  <div class="krivicna-list">
+    <div *ngFor="let prijava of krivicnePrijave" class="krivicna-card">
+      <div class="card-header">
+        <h3>{{ prijava.opis }}</h3>
+        <p><strong>Datum:</strong> {{ prijava.datum | date }}</p>
+      </div>
+      <div class="card-body">
+        <h4>Prelaz</h4>
+        <p><strong>Datum:</strong> {{ prijava.prelaz?.datum | date }}</p>
+        <p><strong>Ime:</strong> {{ prijava.prelaz?.imePutnika }}</p>
+        <p><strong>Prezime:</strong> {{ prijava.prelaz?.prezimePutnika }}</p>
+        <p><strong>JMBG:</strong> {{ prijava.prelaz?.JMBGPutnika }}</p>
+        <p><strong>Broj Lične Karte:</strong> {{ prijava.prelaz?.brojLicneKartePutnika }}</p>
+        <p><strong>Broj Pasoša:</strong> {{ prijava.prelaz?.brojPasosaPutnika }}</p>
+        <p><strong>Državljanstvo:</strong> {{ prijava.prelaz?.drzavljanstvoPutnika }}</p>
+        <p><strong>Marka Vozila:</strong> {{ prijava.prelaz?.markaVozila }}</p>
+        <p><strong>Model Vozila:</strong> {{ prijava.prelaz?.modelVozila }}</p>
+        <p><strong>Svrha Putovanja:</strong> {{ prijava.prelaz?.svrhaPutovanja }}</p>
+        <p><strong>Odobren:</strong> {{ prijava.prelaz?.odobren ? 'Da' : 'Ne' }}</p>
+      </div>
+      <div class="button-container">
+        <button (click)="openKreirajZahtevZaSklapanjeSporazumaDialog(prijava.id)" class="green-button">Kreiraj zahtev za sklapanje sporazuma</button>
+        <button class="orange-button">Kreiraj zahtev za sudski postupak</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -4,6 +4,10 @@ import { LoginComponent } from './components/login/login.component';
 import { MainPageComponent } from './components/main-page/main-page.component';
 import {LoginGuardService} from "./guards/login-guard.service";
 import {RoleGuardService} from "./guards/role-guard.service";
+import { KrivicnePrijaveComponent } from './components/tuzilastvo/krivicne-prijave/krivicne-prijave.component';
+import { ZahteviSudskiPostupakComponent } from './components/tuzilastvo/zahtevi-sudski-postupak/zahtevi-sudski-postupak.component';
+import { ZahteviSklapanjeSporazumaComponent } from './components/tuzilastvo/zahtevi-sklapanje-sporazuma/zahtevi-sklapanje-sporazuma.component';
+import { SporazumiComponent } from './components/tuzilastvo/sporazumi/sporazumi.component';
 
 
 const routes: Routes = [
@@ -15,6 +19,22 @@ const routes: Routes = [
     path: '',
     component: LoginComponent,
     canActivate: [LoginGuardService]
+  },
+  {
+    path: 'krivicnePrijaveTuzilastvo',
+    component: KrivicnePrijaveComponent
+  },
+  {
+    path: 'zahteviZaSudskiPostupakTuzilastvo',
+    component: ZahteviSudskiPostupakComponent
+  },
+  {
+    path: 'zahteviZaSklapanjeSporazumaTuzilastvo',
+    component: ZahteviSklapanjeSporazumaComponent
+  },
+  {
+    path: 'sporazumiTuzilastvo',
+    component: SporazumiComponent
   },
 
 ];

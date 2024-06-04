@@ -24,6 +24,12 @@ import { NgxCaptchaModule } from 'ngx-captcha';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
+import { KrivicnePrijaveComponent } from './components/tuzilastvo/krivicne-prijave/krivicne-prijave.component';
+import { ZahteviSudskiPostupakComponent } from './components/tuzilastvo/zahtevi-sudski-postupak/zahtevi-sudski-postupak.component';
+import { ZahteviSklapanjeSporazumaComponent } from './components/tuzilastvo/zahtevi-sklapanje-sporazuma/zahtevi-sklapanje-sporazuma.component';
+import { SporazumiComponent } from './components/tuzilastvo/sporazumi/sporazumi.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { KreirajZahtevSklapanjeSporazumaDialogComponent } from './components/tuzilastvo/kreiraj-zahtev-sklapanje-sporazuma-dialog/kreiraj-zahtev-sklapanje-sporazuma-dialog.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +37,11 @@ import { MatNativeDateModule } from '@angular/material/core';
     MainPageComponent,
     HeaderComponent,
     LoginComponent,
+    KrivicnePrijaveComponent,
+    ZahteviSudskiPostupakComponent,
+    ZahteviSklapanjeSporazumaComponent,
+    SporazumiComponent,
+    KreirajZahtevSklapanjeSporazumaDialogComponent,
    
   ],
   imports: [
@@ -54,6 +65,9 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatDatepickerModule,
     MatInputModule,
     MatNativeDateModule,
+    MatDialogModule,
+    FormsModule,
+    ReactiveFormsModule,
   ],
   providers:
   [{

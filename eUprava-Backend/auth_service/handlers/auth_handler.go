@@ -70,6 +70,7 @@ func (h *AuthHandler) DobaviKorisnikaPoId(rw http.ResponseWriter, r *http.Reques
 		rw.Write([]byte("Greska dobavljanja korisnika po ID"))
 		span.SetStatus(codes.Error, "Greska dobavljanja korisnika po ID")
 	}
+	korisnik.Lozinka = ""
 
 	if korisnik == nil {
 		return

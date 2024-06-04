@@ -1,0 +1,35 @@
+<app-header></app-header>
+<div class="container">
+    <h2>Zahtevi za sklapanje sporazuma</h2>
+  <div *ngIf="zahteviZaSklapanjeSporazuma == null" class="no-data">No data available</div>
+  <div class="krivicna-list">
+    <div *ngFor="let zahtev of zahteviZaSklapanjeSporazuma" class="krivicna-card">
+        <div class="card-header">
+            <h3>{{ zahtev.opis }}</h3> 
+            <p><strong>Datum:</strong> {{ zahtev.datum | date }}</p>
+        </div>
+        <div class="card-body">
+            <p><strong>Uslovi:</strong> {{ zahtev.uslovi }}</p>
+            <p><strong>Kazna:</strong> {{ zahtev.kazna }}</p>
+            <p><strong>Id Tuzioca:</strong> {{ zahtev.idTuzioca }}</p>
+            <p><strong>Prihvacen:</strong> {{ zahtev.prihvacen }}</p>
+            <h4>Krivična prijava</h4>
+            <p><strong>Datum:</strong> {{ zahtev.krivicnaPrijava?.datum | date }}</p>
+            <p><strong>Opis:</strong> {{ zahtev.krivicnaPrijava?.opis }}</p>
+            <h4>Prelaz</h4>
+            <p><strong>Datum:</strong> {{ zahtev.krivicnaPrijava?.prelaz?.datum | date }}</p>
+            <p><strong>Ime:</strong> {{ zahtev.krivicnaPrijava?.prelaz?.imePutnika }}</p>
+            <p><strong>Prezime:</strong> {{ zahtev.krivicnaPrijava?.prelaz?.prezimePutnika }}</p>
+            <p><strong>JMBG:</strong> {{ zahtev.krivicnaPrijava?.prelaz?.JMBGPutnika }}</p>
+            <p><strong>Broj Lične Karte:</strong> {{ zahtev.krivicnaPrijava?.prelaz?.brojLicneKartePutnika }}</p>
+            <p><strong>Broj Pasoša:</strong> {{ zahtev.krivicnaPrijava?.prelaz?.brojPasosaPutnika }}</p>
+            <p><strong>Državljanstvo:</strong> {{ zahtev.krivicnaPrijava?.prelaz?.drzavljanstvoPutnika }}</p>
+            <p><strong>Marka Vozila:</strong> {{ zahtev.krivicnaPrijava?.prelaz?.markaVozila }}</p>
+            <p><strong>Model Vozila:</strong> {{ zahtev.krivicnaPrijava?.prelaz?.modelVozila }}</p>
+            <p><strong>Svrha Putovanja:</strong> {{ zahtev.krivicnaPrijava?.prelaz?.svrhaPutovanja }}</p>
+            <p><strong>Odobren:</strong> {{ zahtev.krivicnaPrijava?.prelaz?.odobren ? 'Da' : 'Ne' }}</p>
+        </div>
+    </div>
+  </div>
+</div>
+

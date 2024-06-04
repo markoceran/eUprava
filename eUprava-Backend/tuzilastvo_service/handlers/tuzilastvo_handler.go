@@ -201,8 +201,15 @@ func (h *TuzilastvoHandler) KreirajZahtevZaSklapanjeSporazuma(writer http.Respon
 		return
 	}
 
+	message := "Zahtev za sklapanje sporazuma je uspešno kreiran"
+	// Encode and send JSON response
+	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)
-	writer.Write([]byte("Zahtev za sklapanje sporazuma je uspešno kreiran"))
+	err = json.NewEncoder(writer).Encode(map[string]string{"message": message})
+	if err != nil {
+		// handle error
+		return
+	}
 
 }
 
