@@ -11,8 +11,12 @@
         <div class="card-body">
             <p><strong>Uslovi:</strong> {{ zahtev.uslovi }}</p>
             <p><strong>Kazna:</strong> {{ zahtev.kazna }}</p>
-            <p><strong>Id Tuzioca:</strong> {{ zahtev.idTuzioca }}</p>
-            <p><strong>Prihvacen:</strong> {{ zahtev.prihvacen }}</p>
+            <span [style.color]="zahtev.prihvacen ? 'green' : 'red'">
+              <strong>Prihvacen:</strong> 
+              <span>
+                {{ zahtev.prihvacen ? 'Da' : 'Ne' }}
+              </span>
+            </span>            
             <h4>Krivična prijava</h4>
             <p><strong>Datum:</strong> {{ zahtev.krivicnaPrijava?.datum | date }}</p>
             <p><strong>Opis:</strong> {{ zahtev.krivicnaPrijava?.opis }}</p>
@@ -28,6 +32,10 @@
             <p><strong>Model Vozila:</strong> {{ zahtev.krivicnaPrijava?.prelaz?.modelVozila }}</p>
             <p><strong>Svrha Putovanja:</strong> {{ zahtev.krivicnaPrijava?.prelaz?.svrhaPutovanja }}</p>
             <p><strong>Odobren:</strong> {{ zahtev.krivicnaPrijava?.prelaz?.odobren ? 'Da' : 'Ne' }}</p>
+        </div>
+        <div class="button-container" *ngIf="role == 'Gradjanin'">
+          <button  class="green-button">Prihvati</button>
+          <button  class="orange-button">Odbij</button>
         </div>
     </div>
   </div>

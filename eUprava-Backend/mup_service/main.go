@@ -91,6 +91,9 @@ func main() {
 	validirajDokumente := router.Methods(http.MethodPost).Subrouter()
 	validirajDokumente.HandleFunc("/validirajDokumente", mupHandler.ValidirajDokumente)
 
+	dobaviJmbgKorisnika := router.Methods(http.MethodGet).Subrouter()
+	dobaviJmbgKorisnika.HandleFunc("/dobaviJmbgKorisnika/{id}", mupHandler.DobaviJmbgKorisnika)
+
 	//Initialize the server
 	server := http.Server{
 		Addr:         ":" + port,

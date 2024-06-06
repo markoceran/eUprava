@@ -7,3 +7,4 @@ p, Tuzioc, /kreirajSporazum, POST
 p, Tuzioc, /dobaviSporazume, GET
 p, Tuzioc, /krivicnePrijave, GET
 p, Istrazitelj, /krivicnePrijave, GET
+p, Gradjanin, /dobaviZahteveZaSklapanjeSporazumaPoGradjaninu/*, GET

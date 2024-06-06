@@ -18,8 +18,10 @@ import (
 )
 
 var (
-	gpServiceHost = os.Getenv("GRANICNA_POLICIJA_SERVICE_HOST")
-	gpServicePort = os.Getenv("GRANICNA_POLICIJA_SERVICE_PORT")
+	gpServiceHost  = os.Getenv("GRANICNA_POLICIJA_SERVICE_HOST")
+	gpServicePort  = os.Getenv("GRANICNA_POLICIJA_SERVICE_PORT")
+	mupServiceHost = os.Getenv("MUP_SERVICE_HOST")
+	mupServicePort = os.Getenv("MUP_SERVICE_PORT")
 )
 
 type KeyProduct struct{}
@@ -103,8 +105,15 @@ func (h *TuzilastvoHandler) KreirajZahtevZaSudskiPostupak(writer http.ResponseWr
 		return
 	}
 
+	message := "Zahtev za sudski postupak je uspešno kreiran"
+	// Encode and send JSON response
+	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusOK)
-	writer.Write([]byte("Zahtev za sudski postupak je uspešno kreiran"))
+	err = json.NewEncoder(writer).Encode(map[string]string{"message": message})
+	if err != nil {
+		// handle error
+		return
+	}
 
 }
 
@@ -462,4 +471,96 @@ func (h *TuzilastvoHandler) DobaviKrivicnuPrijavuByID(id string) (*data.Krivicna
 	}
 
 	return prijava, nil
+}
+
+func (h *TuzilastvoHandler) DobaviZahteveZaSklapanjeSporazumaByGradjanin(rw http.ResponseWriter, r *http.Request) {
+	ctx, span := h.tracer.Start(r.Context(), "TuzilastvoHandler.DobaviZahteveZaSklapanjeSporazumaByGradjanin")
+	defer span.End()
+
+	vars := mux.Vars(r)
+	korisnikId, err := primitive.ObjectIDFromHex(vars["id"])
+	if err != nil {
+		span.SetStatus(codes.Error, "Id korisnika nije procitan")
+		http.Error(rw, "Id korisnika nije procitan", http.StatusBadRequest)
+		return
+	}
+
+	// Convert korisnikId to string
+	korisnikIdStr := korisnikId.Hex()
+
+	dobaviJmbgEndpoint := fmt.Sprintf("http://%s:%s/dobaviJmbgKorisnika/%s", mupServiceHost, mupServicePort, korisnikIdStr)
+	log.Println(dobaviJmbgEndpoint)
+
+	// Create an HTTP request
+	req, err := http.NewRequestWithContext(ctx, "GET", dobaviJmbgEndpoint, nil)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Greska prilikom kreiranja zahteva"))
+		span.SetStatus(codes.Error, "Greska prilikom kreiranja zahteva")
+		return
+	}
+
+	// Make the HTTP request
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Greska prilikom slanja zahteva"))
+		span.SetStatus(codes.Error, "Greska prilikom slanja zahteva")
+		return
+	}
+	defer resp.Body.Close()
+
+	// Check the response status code
+	if resp.StatusCode != http.StatusOK {
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Greska prilikom izvrsavanja zahteva u mup servisu"))
+		span.SetStatus(codes.Error, "Greska prilikom izvrsavanja zahteva u mup servisu")
+		return
+	}
+
+	// Read the response body
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		rw.WriteHeader(http.StatusNotFound)
+		rw.Write([]byte("Greska prilikom citanja odgovora"))
+		span.SetStatus(codes.Error, "Greska prilikom citanja odgovora")
+		return
+	}
+
+	// Parse the JMBG from the response body
+	var response struct {
+		JMBG string `json:"jmbg"`
+	}
+	err = json.Unmarshal(body, &response)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte("Greska prilikom parsiranja odgovora"))
+		span.SetStatus(codes.Error, "Greska prilikom parsiranja odgovora")
+		return
+	}
+
+	// Fetch requests for agreement based on the JMBG
+	zahtevi, err := h.tuzilastvoRepo.DobaviZahteveZaSklapanjeSporazumaPoGradjaninu(ctx, response.JMBG)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte("Greska prilikom dobijanja zahteva"))
+		span.SetStatus(codes.Error, "Greska prilikom dobijanja zahteva")
+		return
+	}
+
+	if zahtevi == nil {
+		rw.WriteHeader(http.StatusNotFound)
+		rw.Write([]byte("Nema zahteva za sklapanje sporazuma"))
+		span.SetStatus(codes.Error, "Nema zahteva za sklapanje sporazuma")
+		return
+	}
+
+	// Convert the requests to JSON and send them in the response
+	err = json.NewEncoder(rw).Encode(zahtevi)
+	if err != nil {
+		rw.WriteHeader(http.StatusInternalServerError)
+		rw.Write([]byte("Greska prilikom konvertovanja u JSON"))
+		span.SetStatus(codes.Error, "Greska prilikom konvertovanja u JSON")
+		return
+	}
 }

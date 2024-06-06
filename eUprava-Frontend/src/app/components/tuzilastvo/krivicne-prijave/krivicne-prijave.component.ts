@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { KrivicnaPrijava } from 'src/app/models/krivicnaPrijava';
 import { TuzilastvoService } from 'src/app/services/tuzilastvo.service';
 import { KreirajZahtevSklapanjeSporazumaDialogComponent } from '../kreiraj-zahtev-sklapanje-sporazuma-dialog/kreiraj-zahtev-sklapanje-sporazuma-dialog.component';
+import { KreirajZahtevSudskiPostupakComponent } from '../kreiraj-zahtev-sudski-postupak/kreiraj-zahtev-sudski-postupak.component';
 
 @Component({
   selector: 'app-krivicne-prijave',
@@ -33,6 +34,20 @@ export class KrivicnePrijaveComponent implements OnInit {
 
   openKreirajZahtevZaSklapanjeSporazumaDialog(krivicnaPrijavaId:any): void {
     const dialogRef = this.dialog.open(KreirajZahtevSklapanjeSporazumaDialogComponent, {
+      width: '400px',
+      data: { krivicnaPrijavaId: krivicnaPrijavaId }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('The dialog was closed with result:', result);
+        // Optionally handle the result here
+      }
+    });
+  }
+
+  openKreirajZahtevZaSudskiPostupakDialog(krivicnaPrijavaId:any): void {
+    const dialogRef = this.dialog.open(KreirajZahtevSudskiPostupakComponent, {
       width: '400px',
       data: { krivicnaPrijavaId: krivicnaPrijavaId }
     });

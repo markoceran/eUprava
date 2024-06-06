@@ -30,6 +30,7 @@ import { ZahteviSklapanjeSporazumaComponent } from './components/tuzilastvo/zaht
 import { SporazumiComponent } from './components/tuzilastvo/sporazumi/sporazumi.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { KreirajZahtevSklapanjeSporazumaDialogComponent } from './components/tuzilastvo/kreiraj-zahtev-sklapanje-sporazuma-dialog/kreiraj-zahtev-sklapanje-sporazuma-dialog.component';
+import { KreirajZahtevSudskiPostupakComponent } from './components/tuzilastvo/kreiraj-zahtev-sudski-postupak/kreiraj-zahtev-sudski-postupak.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import { KreirajZahtevSklapanjeSporazumaDialogComponent } from './components/tuz
     ZahteviSklapanjeSporazumaComponent,
     SporazumiComponent,
     KreirajZahtevSklapanjeSporazumaDialogComponent,
+    KreirajZahtevSudskiPostupakComponent,
    
   ],
   imports: [

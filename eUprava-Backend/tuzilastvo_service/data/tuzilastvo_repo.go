@@ -215,3 +215,28 @@ func (rr *TuzilastvoRepo) DobaviZahtevZaSklapanjeSporazumaPoPrijavi(ctx context.
 
 	return &zahtev, nil
 }
+
+func (rr *TuzilastvoRepo) DobaviZahteveZaSklapanjeSporazumaPoGradjaninu(ctx context.Context, jmbg string) (ZahteviZaSklapanjeSporazuma, error) {
+	filter := bson.D{{"krivicnaPrijava.prelaz.JMBGPutnika", jmbg}}
+	var zahtevi ZahteviZaSklapanjeSporazuma
+
+	cursor, err := rr.tabela.Collection(COLLECTIONZAHTEVZASKLAPANJESPORAZUMA).Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var zahtev ZahtevZaSklapanjeSporazuma
+		if err := cursor.Decode(&zahtev); err != nil {
+			return nil, err
+		}
+		zahtevi = append(zahtevi, &zahtev)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return zahtevi, nil
+}

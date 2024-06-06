@@ -89,6 +89,9 @@ func main() {
 	dobaviKrivicnePrijave := router.Methods(http.MethodGet).Subrouter()
 	dobaviKrivicnePrijave.HandleFunc("/krivicnePrijave", tuzilastvoHandler.DobaviKrivicnePrijaveOdGranicnePolicjie)
 
+	dobaviZahteveZaSklapanjeSporazumaPoGradjaninu := router.Methods(http.MethodGet).Subrouter()
+	dobaviZahteveZaSklapanjeSporazumaPoGradjaninu.HandleFunc("/dobaviZahteveZaSklapanjeSporazumaPoGradjaninu/{id}", tuzilastvoHandler.DobaviZahteveZaSklapanjeSporazumaByGradjanin)
+
 	//Initialize the server
 	server := http.Server{
 		Addr:         ":" + port,

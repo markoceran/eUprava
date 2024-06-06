@@ -1,12 +1,12 @@
 <nav class="nav">
   <ul class="navbar">
     <li class="nav-item">
-      <a class="nav-link" *ngIf="isLoggedIn()" (click)="logout()">Logout</a>
+      <a class="nav-link" *ngIf="isLoggedIn()" (click)="logout()">Odjava</a>
     </li>
 
     <li class="nav-item">
       <a class="nav-link" *ngIf="isLoggedIn()" aria-pressed="true" routerLink="/Main-Page">Početna stranica</a>
-      <a class="nav-link" *ngIf="isLoggedIn() && role === 'Gradjanin'" aria-pressed="true">Gradjanin</a>
+      <a class="nav-link" *ngIf="isLoggedIn() && role === 'Gradjanin'" aria-pressed="true" routerLink="/zahteviZaSklapanjeSporazumaTuzilastvo">Moji zahtevi za sklapanje sporazuma</a>
       <a class="nav-link" *ngIf="isLoggedIn() && role === 'Tuzioc'" aria-pressed="true" routerLink="/krivicnePrijaveTuzilastvo">Krivične prijave</a>
       <a class="nav-link" *ngIf="isLoggedIn() && role === 'Tuzioc'" aria-pressed="true" routerLink="/zahteviZaSudskiPostupakTuzilastvo">Zahtevi za sudski postupak</a>
       <a class="nav-link" *ngIf="isLoggedIn() && role === 'Tuzioc'" aria-pressed="true" routerLink="/zahteviZaSklapanjeSporazumaTuzilastvo">Zahtevi za sklapanje sporazuma</a>

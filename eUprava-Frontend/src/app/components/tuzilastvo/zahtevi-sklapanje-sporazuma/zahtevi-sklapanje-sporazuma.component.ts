@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { ZahtevZaSklapanjeSporazuma } from 'src/app/models/zahtevZaSklapanjeSporazuma';
+import { AuthService } from 'src/app/services/auth.service';
 import { TuzilastvoService } from 'src/app/services/tuzilastvo.service';
 
 @Component({
@@ -10,13 +12,34 @@ import { TuzilastvoService } from 'src/app/services/tuzilastvo.service';
 })
 export class ZahteviSklapanjeSporazumaComponent implements OnInit {
 
-  constructor(private router: Router,private tuzilastvoService:TuzilastvoService) { }
-
   zahteviZaSklapanjeSporazuma: ZahtevZaSklapanjeSporazuma[] = [];
+  role!: string | null;
+
+  constructor(
+    private router: Router,
+    private tuzilastvoService: TuzilastvoService,
+    private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
-    this.getZahteviZaSklapanjeSporazuma();
-  }
+      if (this.authService.isLoggedIn()) {
+        this.role = this.authService.extractUserType();
+        console.log(this.role)
+        if (this.role != null && this.role === 'Gradjanin') {
+          const id = this.authService.getUserIdFromToken();
+          if (id) {
+            this.getZahteviZaSklapanjeSporazumaPoGradjaninu(id);
+          } else {
+            console.error('Id korisnika nije pronadjen.');
+          }
+        } else if (this.role != null && this.role === 'Tuzioc') {
+          this.getZahteviZaSklapanjeSporazuma();
+        }
+      } else {
+        this.zahteviZaSklapanjeSporazuma = [];
+      }
+  }  
+  
 
   getZahteviZaSklapanjeSporazuma(): void {
     this.tuzilastvoService.getZahteviZaSklapanjeSporazuma().subscribe(
@@ -24,7 +47,18 @@ export class ZahteviSklapanjeSporazumaComponent implements OnInit {
         this.zahteviZaSklapanjeSporazuma = data;
       },
       (error) => {
-        console.error(error);
+        console.error('Greska prilikom dobavljanja:', error);
+      }
+    );
+  }
+
+  getZahteviZaSklapanjeSporazumaPoGradjaninu(id: any): void {
+    this.tuzilastvoService.getZahteviZaSklapanjeSporazumaPoGradjaninu(id).subscribe(
+      (data) => {
+        this.zahteviZaSklapanjeSporazuma = data;
+      },
+      (error) => {
+        console.error(`Greska prilikom dobavljanja:`, error);
       }
     );
   }

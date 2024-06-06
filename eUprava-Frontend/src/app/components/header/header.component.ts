@@ -17,14 +17,7 @@ export class HeaderComponent implements OnInit{
 
   
   ngOnInit(): void {
-    this.authService.getUser(this.authService.getUserIdFromToken()).subscribe(
-      (user: User) => {
-        this.role = user.rola;
-      },
-      (error) => {
-        console.error('Error get user data:', error);
-      }
-    );
+    this.role = this.authService.extractUserType();
     console.log(this.role);
   }
 

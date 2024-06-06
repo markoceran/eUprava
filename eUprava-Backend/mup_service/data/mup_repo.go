@@ -259,3 +259,19 @@ func decodeKorisnici(cursor *mongo.Cursor) (korisnici Korisnici, err error) {
 	err = cursor.Err()
 	return
 }
+
+func (rr *MupRepo) DobaviJmbgKorisnika(ctx context.Context, id primitive.ObjectID) (string, error) {
+	filter := bson.D{{"_id", id}}
+	var korisnik Korisnik
+
+	err := rr.tabela.Collection(COLLECTIONKORISNICI).FindOne(ctx, filter).Decode(&korisnik)
+	if err != nil {
+		return "", err
+	}
+
+	if korisnik.LicnaKarta == nil {
+		return "", fmt.Errorf("Korisnik nema licnu kartu")
+	}
+
+	return korisnik.LicnaKarta.JMBG, nil
+}

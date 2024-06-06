@@ -104,17 +104,15 @@
   
   .orange-button {
     margin-top: 10px;
+    margin-left: 20px;
     border-color: #ff9800;
     color: #b06a01;
   }
   
-  .red-button {
-    border-color: #f44336;
-    color: #f44336;
+  .green-button:hover{
+    background-color: rgba(22, 148, 35, 0.183);
   }
-  
-  .green-button:hover,
-  .orange-button:hover,
-  .red-button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+
+  .orange-button:hover{
+    background-color: rgba(190, 98, 6, 0.191);
   }

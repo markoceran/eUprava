@@ -6,3 +6,4 @@ p, , /kreirajPasos/*, PUT
 p, , /dobaviKorisnike, GET
 p, , /validirajDokumente, POST
 p, , /dobaviNalogeZaPracenje, GET
+p, , /dobaviJmbgKorisnika/*, GET

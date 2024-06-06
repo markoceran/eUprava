@@ -659,3 +659,41 @@ func (h *MupHandler) DobaviNalogeZaPracenje(rw http.ResponseWriter, r *http.Requ
 		span.SetStatus(codes.Error, "Greska prilikom konvertovanja u JSON")
 	}
 }
+
+func (h *MupHandler) DobaviJmbgKorisnika(rw http.ResponseWriter, r *http.Request) {
+	ctx, span := h.tracer.Start(r.Context(), "MupHandler.DobaviJmbgKorisnika")
+	defer span.End()
+
+	vars := mux.Vars(r)
+	korisnikId, err := primitive.ObjectIDFromHex(vars["id"])
+	if err != nil {
+		span.SetStatus(codes.Error, "Id korisnika nije procitan")
+		http.Error(rw, "Id korisnika nije procitan", http.StatusBadRequest)
+		return
+	}
+
+	jmbg, err := h.mupRepo.DobaviJmbgKorisnika(ctx, korisnikId)
+	if err != nil {
+		span.SetStatus(codes.Error, "Jmbg nije dobavljen")
+		http.Error(rw, "Jmbg nije dobavljen", http.StatusInternalServerError)
+		return
+	}
+
+	if jmbg == "" {
+		span.SetStatus(codes.Error, "Jmbg nije pronađen")
+		http.Error(rw, "Jmbg nije pronađen", http.StatusNotFound)
+		return
+	}
+
+	response := struct {
+		JMBG string `json:"jmbg"`
+	}{
+		JMBG: jmbg,
+	}
+
+	rw.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(rw).Encode(response); err != nil {
+		span.SetStatus(codes.Error, "Greska prilikom konvertovanja u JSON")
+		http.Error(rw, "Greska prilikom konvertovanja u JSON", http.StatusInternalServerError)
+	}
+}

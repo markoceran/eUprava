@@ -30,4 +30,10 @@ export class TuzilastvoService {
   public kreirajZahtevZaSklapanjeSporazuma(krivicnaPrijavaId:any, opis:String, uslovi:String, kazna:String): Observable<any> {
     return this.http.put<any>(`${environment.baseApiUrl}/${this.url}/kreirajZahtevZaSklapanjeSporazuma/`+ krivicnaPrijavaId, {opis,uslovi,kazna});
   }
+  public kreirajZahtevZaSudskiPostupak(krivicnaPrijavaId:any, opis:String): Observable<any> {
+    return this.http.put<any>(`${environment.baseApiUrl}/${this.url}/kreirajZahtevZaSudskiPostupak/`+ krivicnaPrijavaId, {opis});
+  }
+  public getZahteviZaSklapanjeSporazumaPoGradjaninu(id:any): Observable<ZahtevZaSklapanjeSporazuma[]> {
+    return this.http.get<ZahtevZaSklapanjeSporazuma[]>(`${environment.baseApiUrl}/${this.url}/dobaviZahteveZaSklapanjeSporazumaPoGradjaninu/` + id);
+  }
 }

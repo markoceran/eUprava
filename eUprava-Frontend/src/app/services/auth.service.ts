@@ -1,6 +1,6 @@
 import {HttpClient, HttpHeaders, HttpResponse} from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 import { environment } from "src/environments/environment";
 import { LoginDTO } from "../dto/loginDTO";
 import { jwtDecode } from 'jwt-decode';
@@ -12,7 +12,6 @@ providedIn: 'root'
 export class AuthService {
   
   private url = "auth";
-  private tokenString = localStorage.getItem("authToken");
   constructor(private http: HttpClient) { }
 
   public Login(loginDTO: LoginDTO): Observable<string> {
@@ -35,9 +34,10 @@ export class AuthService {
 
    // Function to parse the JWT token
    parseToken(): any {
-    if(this.tokenString != null){
+    var tokenString = localStorage.getItem("authToken");
+    if(tokenString != null){
       try {
-       return jwtDecode(this.tokenString);
+       return jwtDecode(tokenString);
      } catch (error) {
        console.error('Error parsing token:', error);
        return null;
