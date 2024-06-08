@@ -14,6 +14,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 })
 export class LoginComponent implements OnInit {
 
+  
   formGroup: FormGroup = new FormGroup({
     korisnickoIme: new FormControl(''),
     lozinka: new FormControl('')
@@ -26,41 +27,42 @@ export class LoginComponent implements OnInit {
     private _snackBar: MatSnackBar,
   ) { }
 
-
   ngOnInit(): void {
     this.formGroup = this.formBuilder.group({
       korisnickoIme: ['', [Validators.required]],
       lozinka: ['', [Validators.required]],
     });
-    this.formGroup.setErrors({ unauthenticated: true})
   }
-
 
   get loginGroup(): { [key: string]: AbstractControl } {
     return this.formGroup.controls;
   }
 
   onSubmit() {
-      let login: LoginDTO = new LoginDTO();
+    if (this.formGroup.invalid) {
+      // Mark all controls as touched to trigger validation messages
+      this.formGroup.markAllAsTouched();
+      return;
+    }
 
-      login.korisnickoIme = this.formGroup.get('korisnickoIme')?.value;
-      login.lozinka = this.formGroup.get('lozinka')?.value;
-             
-      this.authService.Login(login).subscribe({
-        next: (token: string) => {
-          localStorage.setItem('authToken', token);
-          this.router.navigate(['/Main-Page']);
-        },
-        error: (error) => {
-          this.formGroup.setErrors({ unauthenticated: true });
-          this.openSnackBar("Username or password are incorrect!", "");
-        }
-      });
-      
+    let login: LoginDTO = new LoginDTO();
+    login.korisnickoIme = this.formGroup.get('korisnickoIme')?.value;
+    login.lozinka = this.formGroup.get('lozinka')?.value;
+    
+    this.authService.Login(login).subscribe({
+      next: (token: string) => {
+        localStorage.setItem('authToken', token);
+        this.router.navigate(['/Main-Page']);
+      },
+      error: (error) => {
+        this.formGroup.setErrors({ unauthenticated: true });
+        this.openSnackBar("Korisničko ime ili lozinka nisu ispravni!", "");
+      }
+    });
   }
 
   openSnackBar(message: string, action: string) {
-    this._snackBar.open(message, action,  {
+    this._snackBar.open(message, action, {
       duration: 3500
     });
   }

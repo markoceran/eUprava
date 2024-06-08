@@ -36,4 +36,10 @@ export class TuzilastvoService {
   public getZahteviZaSklapanjeSporazumaPoGradjaninu(id:any): Observable<ZahtevZaSklapanjeSporazuma[]> {
     return this.http.get<ZahtevZaSklapanjeSporazuma[]>(`${environment.baseApiUrl}/${this.url}/dobaviZahteveZaSklapanjeSporazumaPoGradjaninu/` + id);
   }
+  public prihvatiZahtevZaSklapanjeSporazuma(zahtevId:any): Observable<any> {
+    return this.http.put<any>(`${environment.baseApiUrl}/${this.url}/prihvatiZahtevZaSklapanjeSporazuma/`+ zahtevId, {});
+  }
+  public odbijZahtevZaSklapanjeSporazuma(zahtevId:any): Observable<any> {
+    return this.http.put<any>(`${environment.baseApiUrl}/${this.url}/odbijZahtevZaSklapanjeSporazuma/`+ zahtevId, {});
+  }
 }

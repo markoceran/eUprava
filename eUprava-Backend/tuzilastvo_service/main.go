@@ -80,9 +80,6 @@ func main() {
 	dobaviZahteveZaSklapanjeSporazuma := router.Methods(http.MethodGet).Subrouter()
 	dobaviZahteveZaSklapanjeSporazuma.HandleFunc("/dobaviZahteveZaSklapanjeSporazuma", tuzilastvoHandler.DobaviZahteveZaSklapanjeSporazuma)
 
-	kreirajSporazum := router.Methods(http.MethodPost).Subrouter()
-	kreirajSporazum.HandleFunc("/kreirajSporazum", tuzilastvoHandler.KreirajSporazum)
-
 	dobaviSporazume := router.Methods(http.MethodGet).Subrouter()
 	dobaviSporazume.HandleFunc("/dobaviSporazume", tuzilastvoHandler.DobaviSporazume)
 
@@ -91,6 +88,12 @@ func main() {
 
 	dobaviZahteveZaSklapanjeSporazumaPoGradjaninu := router.Methods(http.MethodGet).Subrouter()
 	dobaviZahteveZaSklapanjeSporazumaPoGradjaninu.HandleFunc("/dobaviZahteveZaSklapanjeSporazumaPoGradjaninu/{id}", tuzilastvoHandler.DobaviZahteveZaSklapanjeSporazumaByGradjanin)
+
+	prihvatiZahtevZaSklapanjeSporazuma := router.Methods(http.MethodPut).Subrouter()
+	prihvatiZahtevZaSklapanjeSporazuma.HandleFunc("/prihvatiZahtevZaSklapanjeSporazuma/{id}", tuzilastvoHandler.PrihvatiZahtevZaSklapanjeSporazuma)
+
+	odbijZahtevZaSklapanjeSporazuma := router.Methods(http.MethodPut).Subrouter()
+	odbijZahtevZaSklapanjeSporazuma.HandleFunc("/odbijZahtevZaSklapanjeSporazuma/{id}", tuzilastvoHandler.OdbijZahtevZaSklapanjeSporazuma)
 
 	//Initialize the server
 	server := http.Server{

@@ -161,7 +161,7 @@ func decodeZahteviZaSudskiPostupak(cursor *mongo.Cursor) (zahtevi ZahteviZaSudsk
 
 func (rr *TuzilastvoRepo) DodajSporazum(ctx context.Context, sporazum *Sporazum) error {
 
-	_, err := rr.tabela.Collection(COLLECTIONSPORAZUM).InsertOne(context.TODO(), sporazum)
+	_, err := rr.tabela.Collection(COLLECTIONSPORAZUM).InsertOne(ctx, sporazum)
 
 	if err != nil {
 		log.Println("Greska prilikom dodavanja sporazuma")
@@ -239,4 +239,54 @@ func (rr *TuzilastvoRepo) DobaviZahteveZaSklapanjeSporazumaPoGradjaninu(ctx cont
 	}
 
 	return zahtevi, nil
+}
+
+func (rr *TuzilastvoRepo) PrihvatiZahtevZaSklapanjeSporazuma(ctx context.Context, id primitive.ObjectID) (*ZahtevZaSklapanjeSporazuma, error) {
+	filter := bson.D{{"_id", id}}
+	update := bson.D{{"$set", bson.D{{"prihvacen", true}}}}
+
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+
+	var prihvaceniZahtev ZahtevZaSklapanjeSporazuma
+	err := rr.tabela.Collection(COLLECTIONZAHTEVZASKLAPANJESPORAZUMA).FindOneAndUpdate(ctx, filter, update, opts).Decode(&prihvaceniZahtev)
+	if err != nil {
+		return nil, err
+	}
+
+	return &prihvaceniZahtev, nil
+}
+
+func (rr *TuzilastvoRepo) DobaviSporazumPoZahtevu(ctx context.Context, id primitive.ObjectID) (*Sporazum, error) {
+	filter := bson.D{{"zahtev._id", id}}
+	var sporzum Sporazum
+
+	err := rr.tabela.Collection(COLLECTIONSPORAZUM).FindOne(ctx, filter).Decode(&sporzum)
+	if err != nil {
+		return nil, err
+	}
+
+	return &sporzum, nil
+}
+
+func (rr *TuzilastvoRepo) OdbijZahtevZaSklapanjeSporazuma(ctx context.Context, id primitive.ObjectID) error {
+	filter := bson.D{{"_id", id}}
+
+	_, err := rr.tabela.Collection(COLLECTIONZAHTEVZASKLAPANJESPORAZUMA).DeleteOne(ctx, filter)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (rr *TuzilastvoRepo) DobaviZahtevZaSklapanjeSporazuma(ctx context.Context, id primitive.ObjectID) (*ZahtevZaSklapanjeSporazuma, error) {
+	filter := bson.D{{"_id", id}}
+	var zahtev ZahtevZaSklapanjeSporazuma
+
+	err := rr.tabela.Collection(COLLECTIONZAHTEVZASKLAPANJESPORAZUMA).FindOne(ctx, filter).Decode(&zahtev)
+	if err != nil {
+		return nil, err
+	}
+
+	return &zahtev, nil
 }

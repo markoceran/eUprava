@@ -33,9 +33,9 @@
             <p><strong>Svrha Putovanja:</strong> {{ zahtev.krivicnaPrijava?.prelaz?.svrhaPutovanja }}</p>
             <p><strong>Odobren:</strong> {{ zahtev.krivicnaPrijava?.prelaz?.odobren ? 'Da' : 'Ne' }}</p>
         </div>
-        <div class="button-container" *ngIf="role == 'Gradjanin'">
-          <button  class="green-button">Prihvati</button>
-          <button  class="orange-button">Odbij</button>
+        <div class="button-container" *ngIf="role == 'Gradjanin' && zahtev.prihvacen == false">
+          <button (click)="prihvatiZahtev(zahtev.id)" class="green-button">Prihvati</button>
+          <button (click)="odbijZahtev(zahtev.id)" class="orange-button">Odbij</button>
         </div>
     </div>
   </div>

@@ -245,39 +245,18 @@ func (h *TuzilastvoHandler) DobaviZahteveZaSklapanjeSporazuma(rw http.ResponseWr
 	}
 }
 
-func (h *TuzilastvoHandler) KreirajSporazum(writer http.ResponseWriter, req *http.Request) {
-	ctx, span := h.tracer.Start(req.Context(), "TuzilastvoHandler.KreirajSporazum")
-	defer span.End()
+func (h *TuzilastvoHandler) KreirajSporazum(prihvaceniZahtev data.ZahtevZaSklapanjeSporazuma) bool {
 
-	// PROVERA DA LI VEC POSTOJI
-
-	//var sporazum data.Sporazum
-	//if err := json.NewDecoder(req.Body).Decode(&sporazum); err != nil {
-	//	span.SetStatus(codes.Error, "Pogresan format zahteva")
-	//	writer.WriteHeader(http.StatusBadRequest)
-	//	writer.Write([]byte("Pogresan format zahteva"))
-	//	return
-	//}
-
-	sporazum := data.Sporazum{}
-
-	sporazum.ID = primitive.NewObjectID()
-
-	sporazum.Datum = primitive.NewDateTimeFromTime(time.Now())
-
-	sporazum.Zahtev = data.ZahtevZaSklapanjeSporazuma{}
-
-	err := h.tuzilastvoRepo.DodajSporazum(ctx, &sporazum)
+	novSporazum := data.Sporazum{}
+	novSporazum.ID = primitive.NewObjectID()
+	novSporazum.Datum = primitive.NewDateTimeFromTime(time.Now())
+	novSporazum.Zahtev = prihvaceniZahtev
+	err := h.tuzilastvoRepo.DodajSporazum(context.Background(), &novSporazum)
 	if err != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
-		writer.Write([]byte("Greska prilikom kreiranja sporazuma"))
-		span.SetStatus(codes.Error, "Greska prilikom kreiranja sporazuma")
-		return
+		return false
 	}
 
-	writer.WriteHeader(http.StatusOK)
-	writer.Write([]byte("Sporazum je uspešno kreiran"))
-
+	return true
 }
 
 func (h *TuzilastvoHandler) DobaviSporazume(rw http.ResponseWriter, r *http.Request) {
@@ -563,4 +542,141 @@ func (h *TuzilastvoHandler) DobaviZahteveZaSklapanjeSporazumaByGradjanin(rw http
 		span.SetStatus(codes.Error, "Greska prilikom konvertovanja u JSON")
 		return
 	}
+}
+
+func (h *TuzilastvoHandler) PrihvatiZahtevZaSklapanjeSporazuma(writer http.ResponseWriter, req *http.Request) {
+	ctx, span := h.tracer.Start(req.Context(), "TuzilastvoHandler.PrihvatiZahtevZaSklapanjeSporazuma")
+	defer span.End()
+
+	vars := mux.Vars(req)
+	zahtevId, err := primitive.ObjectIDFromHex(vars["id"])
+	if err != nil {
+		span.SetStatus(codes.Error, "Id zahteva nije procitan")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Id zahteva nije procitan"))
+		return
+	}
+
+	sporazum, _ := h.tuzilastvoRepo.DobaviSporazumPoZahtevu(context.Background(), zahtevId)
+	if sporazum != nil {
+		span.SetStatus(codes.Error, "Sporazum za prosledjeni zahtev vec postoji. Nije moguce prihvatiti zahtev")
+		writer.WriteHeader(http.StatusForbidden)
+		writer.Write([]byte("Sporazum za prosledjeni zahtev vec postoji. Nije moguce prihvatiti zahtev"))
+		return
+	}
+
+	prihvaceniZahtev, err := h.tuzilastvoRepo.PrihvatiZahtevZaSklapanjeSporazuma(ctx, zahtevId)
+	if err != nil {
+		message := "Greska prilikom prihvatanja zahteva za sklapanje sporazuma"
+		// Encode and send JSON response
+		writer.Header().Set("Content-Type", "application/json")
+		writer.WriteHeader(http.StatusBadRequest)
+		err = json.NewEncoder(writer).Encode(map[string]string{"message": message})
+		if err != nil {
+			// handle error
+			return
+		}
+		return
+	}
+
+	if prihvaceniZahtev != nil {
+		resultat := h.KreirajSporazum(*prihvaceniZahtev)
+
+		if resultat == false {
+			message := "Greska prilikom kreiranja sporazuma"
+			// Encode and send JSON response
+			writer.Header().Set("Content-Type", "application/json")
+			writer.WriteHeader(http.StatusInternalServerError)
+			err = json.NewEncoder(writer).Encode(map[string]string{"message": message})
+			if err != nil {
+				// handle error
+				return
+			}
+			return
+		}
+	}
+
+	message := "Zahtev za sklapanje sporazuma je uspešno prihvaćen"
+	// Encode and send JSON response
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(writer).Encode(map[string]string{"message": message})
+	if err != nil {
+		// handle error
+		return
+	}
+
+}
+
+func (h *TuzilastvoHandler) OdbijZahtevZaSklapanjeSporazuma(writer http.ResponseWriter, req *http.Request) {
+	ctx, span := h.tracer.Start(req.Context(), "TuzilastvoHandler.OdbijZahtevZaSklapanjeSporazuma")
+	defer span.End()
+
+	vars := mux.Vars(req)
+	zahtevId, err := primitive.ObjectIDFromHex(vars["id"])
+	if err != nil {
+		span.SetStatus(codes.Error, "Id zahteva nije procitan")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Id zahteva nije procitan"))
+		return
+	}
+
+	zahtev, err := h.tuzilastvoRepo.DobaviZahtevZaSklapanjeSporazuma(ctx, zahtevId)
+	if err != nil {
+		message := "Greska prilikom dobavljanja zahteva za sklapanje sporazuma"
+		// Encode and send JSON response
+		writer.Header().Set("Content-Type", "application/json")
+		writer.WriteHeader(http.StatusBadRequest)
+		err = json.NewEncoder(writer).Encode(map[string]string{"message": message})
+		if err != nil {
+			// handle error
+			return
+		}
+		return
+	}
+
+	novZahtevZaSudskiPostupak := data.ZahtevZaSudskiPostupak{}
+	novZahtevZaSudskiPostupak.ID = primitive.NewObjectID()
+	novZahtevZaSudskiPostupak.Datum = primitive.NewDateTimeFromTime(time.Now())
+	novZahtevZaSudskiPostupak.Opis = "Odbijen zahtev za sklapanje sporazuma"
+	novZahtevZaSudskiPostupak.KrivicnaPrijava = zahtev.KrivicnaPrijava
+
+	err = h.tuzilastvoRepo.OdbijZahtevZaSklapanjeSporazuma(ctx, zahtevId)
+	if err != nil {
+		message := "Greska prilikom odbijanja zahteva za sklapanje sporazuma"
+		// Encode and send JSON response
+		writer.Header().Set("Content-Type", "application/json")
+		writer.WriteHeader(http.StatusBadRequest)
+		err = json.NewEncoder(writer).Encode(map[string]string{"message": message})
+		if err != nil {
+			// handle error
+			return
+		}
+		return
+	}
+
+	err = h.tuzilastvoRepo.DodajZahtevZaSudskiPostupak(ctx, &novZahtevZaSudskiPostupak)
+	if err != nil {
+		message := "Greska prilikom kreiranja zahteva za sudski postupak"
+		// Encode and send JSON response
+		writer.Header().Set("Content-Type", "application/json")
+		writer.WriteHeader(http.StatusBadRequest)
+		err = json.NewEncoder(writer).Encode(map[string]string{"message": message})
+		if err != nil {
+			// handle error
+			return
+		}
+		return
+	}
+
+	message := "Zahtev za sklapanje sporazuma je uspešno odbijen"
+	// Encode and send JSON response
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(writer).Encode(map[string]string{"message": message})
+	if err != nil {
+		// handle error
+		return
+	}
+
 }

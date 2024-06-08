@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ZahtevZaSklapanjeSporazuma } from 'src/app/models/zahtevZaSklapanjeSporazuma';
@@ -18,7 +19,8 @@ export class ZahteviSklapanjeSporazumaComponent implements OnInit {
   constructor(
     private router: Router,
     private tuzilastvoService: TuzilastvoService,
-    private authService: AuthService
+    private authService: AuthService,
+    private _snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -61,6 +63,50 @@ export class ZahteviSklapanjeSporazumaComponent implements OnInit {
         console.error(`Greska prilikom dobavljanja:`, error);
       }
     );
+  }
+
+  prihvatiZahtev(zahtevId:any): void{
+    this.tuzilastvoService.prihvatiZahtevZaSklapanjeSporazuma(zahtevId).subscribe(
+      (message) => {
+          this.openSnackBar(message.message, "");
+          console.log(message.message);
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+      },
+      (error) => {
+          this.openSnackBar(error.message, "");
+          console.error(error.message);
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+      }
+    );
+  }
+
+  odbijZahtev(zahtevId:any): void{
+    this.tuzilastvoService.odbijZahtevZaSklapanjeSporazuma(zahtevId).subscribe(
+      (message) => {
+          this.openSnackBar(message.message, "");
+          console.log(message.message);
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+      },
+      (error) => {
+          this.openSnackBar(error.message, "");
+          console.error(error.message);
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+      }
+    );
+  }
+
+  openSnackBar(message: string, action: string) {
+    this._snackBar.open(message, action,  {
+      duration: 3500
+    });
   }
 
 }

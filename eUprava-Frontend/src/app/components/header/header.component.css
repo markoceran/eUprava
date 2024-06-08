@@ -1,13 +1,15 @@
 ul {
   list-style-type: none;
-  margin: 0px;
-  margin-left: 180px;
+  margin: 0 auto;
   overflow: hidden;
-  background-color: #5a7cdba1;
+  background-color: #5a7adb70;
   display: flex;
+  justify-content: center;
   padding: 10px;
   border-radius: 20px;
 }
+
+
 ul li{
   margin-right: 30px;
 }
@@ -28,10 +30,11 @@ ul li a:hover {
 }
 nav{
   overflow: hidden;
-  background-color: #5a7cdba1;
+  background-color: #5a7cdb89;
   display: flex;
   justify-content: space-between;
   padding: 10px;
+  padding-bottom: 40px;
 }
 nav a{
   float: left;

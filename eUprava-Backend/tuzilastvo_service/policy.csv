@@ -8,3 +8,5 @@ p, Tuzioc, /dobaviSporazume, GET
 p, Tuzioc, /krivicnePrijave, GET
 p, Istrazitelj, /krivicnePrijave, GET
 p, Gradjanin, /dobaviZahteveZaSklapanjeSporazumaPoGradjaninu/*, GET
+p, Gradjanin , /prihvatiZahtevZaSklapanjeSporazuma/*, PUT
+p, Gradjanin , /odbijZahtevZaSklapanjeSporazuma/*, PUT
