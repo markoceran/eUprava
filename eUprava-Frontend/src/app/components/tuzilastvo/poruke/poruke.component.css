@@ -1,0 +1,78 @@
+/* Chat container styles */
+.parent-container {
+    height: 100vh; /* Adjust as needed */
+    margin-top: 5%;
+}
+.chat-container {
+    height: 650px; /* Set the desired height */
+    overflow-y: auto;
+    margin: auto; /* Center the container horizontally */
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #5b4caf;
+    width: 50%;
+    padding-top: 10px;
+}
+
+/* Message container styles */
+.message-container {
+    margin-bottom: 10px;
+}
+
+/* Message styles */
+.message {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 10px;
+    max-width: 70%;
+}
+
+.sent {
+    background-color: #2e40c764;
+    align-self: flex-end; /* Align messages sent by Istrazitelj to the right */
+}
+
+.received {
+    background-color: #5b4caf5a;
+    align-self: flex-start; /* Align messages received by Policajac to the left */
+}
+
+
+.message-content {
+    margin: 0;
+}
+
+.message-timestamp {
+    font-size: 0.8rem;
+    color: #777;
+    margin-top: 4px;
+}
+
+/* Message input area styles */
+.message-input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #ddd;
+    padding: 10px;
+    position: absolute;
+    bottom: 0;
+    width: 50%;
+}
+
+.input-box {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    margin-right: 10px;
+}
+
+.send-button {
+    background-color: #5b4caf;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    cursor: pointer;
+}

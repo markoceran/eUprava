@@ -19,6 +19,8 @@ const (
 	COLLECTIONZAHTEVZASUDSKIPOSTUPAK     = "zahtevZaSudskiPostupak"
 	COLLECTIONZAHTEVZASKLAPANJESPORAZUMA = "zahtevZaSklapanjeSporazuma"
 	COLLECTIONSPORAZUM                   = "sporazum"
+	COLLECTIONPORUKA                     = "poruka"
+	COLLECTIONKANAL                      = "kanal"
 )
 
 type TuzilastvoRepo struct {
@@ -289,4 +291,82 @@ func (rr *TuzilastvoRepo) DobaviZahtevZaSklapanjeSporazuma(ctx context.Context, 
 	}
 
 	return &zahtev, nil
+}
+
+func (rr *TuzilastvoRepo) KreirajKanal(ctx context.Context, kanal *Kanal) error {
+
+	_, err := rr.tabela.Collection(COLLECTIONKANAL).InsertOne(context.TODO(), kanal)
+
+	if err != nil {
+		log.Println("Greska prilikom kreiranja kanala za poruke")
+		return err
+	}
+	return nil
+}
+
+func (rr *TuzilastvoRepo) DobaviKanale(ctx context.Context) (Kanali, error) {
+	filter := bson.D{{}}
+	cursor, err := rr.tabela.Collection(COLLECTIONKANAL).Find(ctx, filter)
+	if err != nil {
+		log.Println("Ne postoje kanali za dati filter")
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var kanali Kanali
+	for cursor.Next(context.TODO()) {
+		var kanal Kanal
+		err = cursor.Decode(&kanal)
+		if err != nil {
+			return nil, nil
+		}
+		kanali = append(kanali, &kanal)
+	}
+	err = cursor.Err()
+	return kanali, nil
+}
+
+func (rr *TuzilastvoRepo) DobaviKanal(ctx context.Context, id primitive.ObjectID) (*Kanal, error) {
+	filter := bson.D{{"_id", id}}
+	var kanal Kanal
+
+	err := rr.tabela.Collection(COLLECTIONKANAL).FindOne(ctx, filter).Decode(&kanal)
+	if err != nil {
+		return nil, err
+	}
+
+	return &kanal, nil
+}
+
+func (rr *TuzilastvoRepo) KreirajPoruku(ctx context.Context, poruka *Poruka) error {
+
+	_, err := rr.tabela.Collection(COLLECTIONPORUKA).InsertOne(context.TODO(), poruka)
+
+	if err != nil {
+		log.Println("Greska prilikom kreiranja poruke")
+		return err
+	}
+	return nil
+}
+
+func (rr *TuzilastvoRepo) DobaviPorukePoKanalu(ctx context.Context, id primitive.ObjectID) (Poruke, error) {
+	filter := bson.D{{"kanalId", id}}
+	cursor, err := rr.tabela.Collection(COLLECTIONPORUKA).Find(ctx, filter)
+	if err != nil {
+		log.Println("Ne postoje poruke za dati kanal")
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var poruke Poruke
+	for cursor.Next(context.TODO()) {
+		var poruka Poruka
+		err = cursor.Decode(&poruka)
+		if err != nil {
+			return nil, nil
+		}
+		poruke = append(poruke, &poruka)
+	}
+	err = cursor.Err()
+	return poruke, nil
 }

@@ -95,6 +95,18 @@ func main() {
 	odbijZahtevZaSklapanjeSporazuma := router.Methods(http.MethodPut).Subrouter()
 	odbijZahtevZaSklapanjeSporazuma.HandleFunc("/odbijZahtevZaSklapanjeSporazuma/{id}", tuzilastvoHandler.OdbijZahtevZaSklapanjeSporazuma)
 
+	kreirajKanal := router.Methods(http.MethodPost).Subrouter()
+	kreirajKanal.HandleFunc("/kreirajKanal", tuzilastvoHandler.KreirajKanal)
+
+	dobaviKanale := router.Methods(http.MethodGet).Subrouter()
+	dobaviKanale.HandleFunc("/dobaviKanale", tuzilastvoHandler.DobaviKanale)
+
+	kreirajPoruku := router.Methods(http.MethodPut).Subrouter()
+	kreirajPoruku.HandleFunc("/kreirajPoruku/{id}", tuzilastvoHandler.KreirajPoruku)
+
+	dobaviPorukePoKanalu := router.Methods(http.MethodGet).Subrouter()
+	dobaviPorukePoKanalu.HandleFunc("/dobaviPorukePoKanalu/{id}", tuzilastvoHandler.DobaviPorukePoKanalu)
+
 	//Initialize the server
 	server := http.Server{
 		Addr:         ":" + port,

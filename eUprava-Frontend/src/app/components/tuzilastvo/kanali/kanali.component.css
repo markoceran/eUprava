@@ -27,12 +27,13 @@
   
   .krivicna-list {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
+    width: 40%;
+    margin: auto;
   }
   
   .krivicna-card {
-    background: #4170d557;
+    background: #4b41d557;
     border: 2px solid #00124e47;
     border-radius: 10px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
@@ -47,14 +48,14 @@
   }
   
   .card-header {
-    border-bottom: 2px solid #00124e;
+    border-bottom: 2px solid #34004e45;
     margin-bottom: 15px;
     padding-bottom: 10px;
   }
   
   .card-header h3 {
     margin: 0;
-    font-size: 16px;
+    font-size: 20px;
     color: #00124e;
   }
   
@@ -104,15 +105,17 @@
   
   .orange-button {
     margin-top: 10px;
-    margin-left: 20px;
     border-color: #ff9800;
     color: #b06a01;
   }
   
-  .green-button:hover{
-    background-color: rgba(22, 148, 35, 0.183);
+  .red-button {
+    border-color: #f44336;
+    color: #f44336;
   }
-
-  .orange-button:hover{
-    background-color: rgba(190, 98, 6, 0.191);
+  
+  .green-button:hover,
+  .orange-button:hover,
+  .red-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
   }

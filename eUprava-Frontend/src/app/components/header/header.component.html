@@ -7,10 +7,11 @@
     <li class="nav-item">
       <a class="nav-link" *ngIf="isLoggedIn()" aria-pressed="true" routerLink="/Main-Page">Početna stranica</a>
       <a class="nav-link" *ngIf="isLoggedIn() && role === 'Gradjanin'" aria-pressed="true" routerLink="/zahteviZaSklapanjeSporazumaTuzilastvo">Moji zahtevi za sklapanje sporazuma</a>
-      <a class="nav-link" *ngIf="isLoggedIn() && role === 'Tuzioc'" aria-pressed="true" routerLink="/krivicnePrijaveTuzilastvo">Krivične prijave</a>
+      <a class="nav-link" *ngIf="isLoggedIn() && role === 'Tuzioc' || role === 'Istrazitelj'" aria-pressed="true" routerLink="/krivicnePrijaveTuzilastvo">Krivične prijave</a>
       <a class="nav-link" *ngIf="isLoggedIn() && role === 'Tuzioc'" aria-pressed="true" routerLink="/zahteviZaSudskiPostupakTuzilastvo">Zahtevi za sudski postupak</a>
       <a class="nav-link" *ngIf="isLoggedIn() && role === 'Tuzioc'" aria-pressed="true" routerLink="/zahteviZaSklapanjeSporazumaTuzilastvo">Zahtevi za sklapanje sporazuma</a>
       <a class="nav-link" *ngIf="isLoggedIn() && role === 'Tuzioc'" aria-pressed="true" routerLink="/sporazumiTuzilastvo">Sporazumi</a>
+      <a class="nav-link" *ngIf="isLoggedIn() && role === 'Istrazitelj' || role === 'Policajac'" aria-pressed="true" routerLink="/kanali">Kanali poruka</a>
       <a class="nav-link" *ngIf="isLoggedIn() && role === 'Policajac'" aria-pressed="true">Policajac</a>
       <a class="nav-link" *ngIf="isLoggedIn() && role === 'GranicniSluzbenik'" aria-pressed="true">GranicniSluzbenik</a>
       <a class="nav-link" *ngIf="isLoggedIn() && role === 'Istrazitelj'" aria-pressed="true">Istrazitelj</a>

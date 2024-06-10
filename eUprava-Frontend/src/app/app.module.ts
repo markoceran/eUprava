@@ -31,6 +31,9 @@ import { SporazumiComponent } from './components/tuzilastvo/sporazumi/sporazumi.
 import { MatDialogModule } from '@angular/material/dialog';
 import { KreirajZahtevSklapanjeSporazumaDialogComponent } from './components/tuzilastvo/kreiraj-zahtev-sklapanje-sporazuma-dialog/kreiraj-zahtev-sklapanje-sporazuma-dialog.component';
 import { KreirajZahtevSudskiPostupakComponent } from './components/tuzilastvo/kreiraj-zahtev-sudski-postupak/kreiraj-zahtev-sudski-postupak.component';
+import { KanaliComponent } from './components/tuzilastvo/kanali/kanali.component';
+import { PorukeComponent } from './components/tuzilastvo/poruke/poruke.component';
+import { KreirajKanalComponent } from './components/tuzilastvo/kreiraj-kanal/kreiraj-kanal.component';
 
 @NgModule({
   declarations: [
@@ -44,6 +47,9 @@ import { KreirajZahtevSudskiPostupakComponent } from './components/tuzilastvo/kr
     SporazumiComponent,
     KreirajZahtevSklapanjeSporazumaDialogComponent,
     KreirajZahtevSudskiPostupakComponent,
+    KanaliComponent,
+    PorukeComponent,
+    KreirajKanalComponent,
    
   ],
   imports: [

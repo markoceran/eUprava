@@ -1,6 +1,7 @@
 package helper
 
 import (
+	"errors"
 	"github.com/cristalhq/jwt/v4"
 	"log"
 	"net/http"
@@ -23,7 +24,11 @@ func ParseToken(tokenString string) (*jwt.Token, error) {
 
 func ExtractUserType(r *http.Request) (string, error) {
 	claims := ExtractClaims(r)
-	return claims["rola"], nil
+	role, ok := claims["rola"]
+	if !ok {
+		return "", errors.New("role claim not found or not a string")
+	}
+	return role, nil
 }
 
 func ExtractClaims(r *http.Request) map[string]string {

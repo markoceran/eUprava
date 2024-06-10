@@ -6,6 +6,8 @@ import { environment } from 'src/environments/environment';
 import { ZahtevZaSudskiPostupak } from '../models/zahtevZaSudskiPostupak';
 import { ZahtevZaSklapanjeSporazuma } from '../models/zahtevZaSklapanjeSporazuma';
 import { Sporazum } from '../models/sporazum';
+import { Kanal } from '../models/kanal';
+import { Poruka } from '../models/poruka';
 
 @Injectable({
   providedIn: 'root'
@@ -41,5 +43,17 @@ export class TuzilastvoService {
   }
   public odbijZahtevZaSklapanjeSporazuma(zahtevId:any): Observable<any> {
     return this.http.put<any>(`${environment.baseApiUrl}/${this.url}/odbijZahtevZaSklapanjeSporazuma/`+ zahtevId, {});
+  }
+  public kreirajKanal(ime:string, opis:string): Observable<any> {
+    return this.http.post<any>(`${environment.baseApiUrl}/${this.url}/kreirajKanal`, {ime,opis});
+  }
+  public kreirajPoruku(kanalId:any, sadrzaj:string): Observable<any> {
+    return this.http.put<any>(`${environment.baseApiUrl}/${this.url}/kreirajPoruku/`+ kanalId, {sadrzaj});
+  }
+  public getPorukePoKanalu(kanalId:any): Observable<Poruka[]> {
+    return this.http.get<Poruka[]>(`${environment.baseApiUrl}/${this.url}/dobaviPorukePoKanalu/` + kanalId);
+  }
+  public getKanali(): Observable<Kanal[]> {
+    return this.http.get<Kanal[]>(`${environment.baseApiUrl}/${this.url}/dobaviKanale`);
   }
 }

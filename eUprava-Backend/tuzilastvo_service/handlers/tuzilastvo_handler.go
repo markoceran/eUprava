@@ -680,3 +680,162 @@ func (h *TuzilastvoHandler) OdbijZahtevZaSklapanjeSporazuma(writer http.Response
 	}
 
 }
+
+func (h *TuzilastvoHandler) KreirajKanal(writer http.ResponseWriter, req *http.Request) {
+	ctx, span := h.tracer.Start(req.Context(), "TuzilastvoHandler.KreirajKanal")
+	defer span.End()
+
+	var kanal data.Kanal
+	if err := json.NewDecoder(req.Body).Decode(&kanal); err != nil {
+		span.SetStatus(codes.Error, "Pogresan format zahteva")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Pogresan format zahteva"))
+		return
+	}
+
+	//var loc *time.Location
+	//
+	//loc, err := time.LoadLocation("Europe/Belgrade")
+	//if err != nil {
+	//	log.Fatalf("Unable to load location: %v", err)
+	//}
+
+	kanal.ID = primitive.NewObjectID()
+	kanal.Kreiran = time.Now()
+
+	err := h.tuzilastvoRepo.KreirajKanal(ctx, &kanal)
+	if err != nil {
+		span.SetStatus(codes.Error, "Greska prilikom kreiranja kanala za poruke")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Greska prilikom kreiranja kanala za poruke"))
+		return
+	}
+
+	message := "Kanal za poruke je uspešno kreiran"
+	// Encode and send JSON response
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(writer).Encode(map[string]string{"message": message})
+	if err != nil {
+		// handle error
+		return
+	}
+
+}
+
+func (h *TuzilastvoHandler) DobaviKanale(rw http.ResponseWriter, r *http.Request) {
+	ctx, span := h.tracer.Start(r.Context(), "TuzilastvoHandler.DobaviKanale")
+	defer span.End()
+
+	kanali, err := h.tuzilastvoRepo.DobaviKanale(ctx)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Greska"))
+		span.SetStatus(codes.Error, "Greska")
+	}
+
+	if kanali == nil {
+		return
+	}
+
+	err = kanali.ToJSON(rw)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Greska prilikom konvertovanja u JSON"))
+		span.SetStatus(codes.Error, "Greska prilikom konvertovanja u JSON")
+	}
+}
+
+func (h *TuzilastvoHandler) KreirajPoruku(writer http.ResponseWriter, req *http.Request) {
+	ctx, span := h.tracer.Start(req.Context(), "TuzilastvoHandler.KreirajKanal")
+	defer span.End()
+
+	vars := mux.Vars(req)
+	kanalId, err := primitive.ObjectIDFromHex(vars["id"])
+	if err != nil {
+		span.SetStatus(codes.Error, "Id kanala nije procitan")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Id kanala nije procitan"))
+		return
+	}
+
+	kanal, _ := h.tuzilastvoRepo.DobaviKanal(ctx, kanalId)
+	if kanal == nil {
+		span.SetStatus(codes.Error, "Kanal sa prosledjenim id ne postoji")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Kanal sa prosledjenim id ne postoji"))
+		return
+	}
+
+	var poruka data.Poruka
+	if err := json.NewDecoder(req.Body).Decode(&poruka); err != nil {
+		span.SetStatus(codes.Error, "Pogresan format zahteva")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Pogresan format zahteva"))
+		return
+	}
+
+	poruka.ID = primitive.NewObjectID()
+	poruka.Datum = time.Now()
+	poruka.KanalId = kanalId
+
+	rola, err := helper.ExtractUserType(req)
+	if err != nil {
+		span.SetStatus(codes.Error, "Greska prilikom uzimanja role iz tokena")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Greska prilikom uzimanja role iz tokena"))
+		return
+	}
+
+	poruka.Posiljalac = rola
+
+	err = h.tuzilastvoRepo.KreirajPoruku(ctx, &poruka)
+	if err != nil {
+		span.SetStatus(codes.Error, "Greska prilikom kreiranja poruke")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Greska prilikom kreiranja poruke"))
+		return
+	}
+
+	// Encode and send JSON response
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(writer).Encode(&poruka)
+	if err != nil {
+		// handle error
+		return
+	}
+
+}
+
+func (h *TuzilastvoHandler) DobaviPorukePoKanalu(rw http.ResponseWriter, r *http.Request) {
+	ctx, span := h.tracer.Start(r.Context(), "TuzilastvoHandler.DobaviPorukePoKanalu")
+	defer span.End()
+
+	vars := mux.Vars(r)
+	kanalId, err := primitive.ObjectIDFromHex(vars["id"])
+	if err != nil {
+		span.SetStatus(codes.Error, "Id kanala nije procitan")
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Id kanala nije procitan"))
+		return
+	}
+
+	poruke, err := h.tuzilastvoRepo.DobaviPorukePoKanalu(ctx, kanalId)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Greska"))
+		span.SetStatus(codes.Error, "Greska")
+	}
+
+	if poruke == nil {
+		return
+	}
+
+	err = poruke.ToJSON(rw)
+	if err != nil {
+		rw.WriteHeader(http.StatusBadRequest)
+		rw.Write([]byte("Greska prilikom konvertovanja u JSON"))
+		span.SetStatus(codes.Error, "Greska prilikom konvertovanja u JSON")
+	}
+}

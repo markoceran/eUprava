@@ -1,0 +1,23 @@
+<app-header></app-header>
+<div class="parent-container ">
+    <div class="chat-container">
+    <div class="message-container" *ngFor="let message of poruke" [ngClass]="{'sent': message.posiljalac === 'Istrazitelj', 'received': message.posiljalac === 'Policajac'}">
+        <div class="message" *ngIf="rolaLogovanogKorisnika === 'Istrazitelj'">
+            <p class="message-content">{{ message.sadrzaj }}</p>
+            <span class="message-timestamp">{{ message.datum | date: 'HH:mm' }}</span>
+        </div>
+    </div>
+    <div class="message-container" *ngFor="let message of poruke" [ngClass]="{'sent': message.posiljalac === 'Policajac', 'received': message.posiljalac === 'Istrazitelj'}">
+        <div class="message" *ngIf="rolaLogovanogKorisnika === 'Policajac'">
+            <p class="message-content">{{ message.sadrzaj }}</p>
+            <span class="message-timestamp">{{ message.datum | date: 'HH:mm' }}</span>
+        </div>
+    </div>
+    <div class="message-input">
+        <input type="text" class="input-box" placeholder="Kucaj poruku..." [(ngModel)]="inputPolje">
+        <button (click)="posaljiPoruku()" class="send-button">Pošalji</button>
+    </div>
+</div>
+</div>
+
+

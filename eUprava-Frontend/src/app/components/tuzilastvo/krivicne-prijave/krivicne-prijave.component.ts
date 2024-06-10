@@ -5,6 +5,7 @@ import { KrivicnaPrijava } from 'src/app/models/krivicnaPrijava';
 import { TuzilastvoService } from 'src/app/services/tuzilastvo.service';
 import { KreirajZahtevSklapanjeSporazumaDialogComponent } from '../kreiraj-zahtev-sklapanje-sporazuma-dialog/kreiraj-zahtev-sklapanje-sporazuma-dialog.component';
 import { KreirajZahtevSudskiPostupakComponent } from '../kreiraj-zahtev-sudski-postupak/kreiraj-zahtev-sudski-postupak.component';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-krivicne-prijave',
@@ -13,12 +14,14 @@ import { KreirajZahtevSudskiPostupakComponent } from '../kreiraj-zahtev-sudski-p
 })
 export class KrivicnePrijaveComponent implements OnInit {
 
-  constructor(private router: Router,private tuzilastvoService:TuzilastvoService,public dialog: MatDialog) { }
+  constructor(private authService: AuthService,private tuzilastvoService:TuzilastvoService,public dialog: MatDialog) { }
 
   krivicnePrijave: KrivicnaPrijava[] = [];
+  rolaLogovanogKorisnika: string | null = ""
 
   ngOnInit(): void {
     this.getKrivicnePrijave();
+    this.rolaLogovanogKorisnika = this.authService.extractUserType();
   }
 
   getKrivicnePrijave(): void {
