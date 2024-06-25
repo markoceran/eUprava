@@ -54,13 +54,6 @@ type Sporazum struct {
 	Datum  primitive.DateTime         `bson:"datum,omitempty" json:"datum"`
 }
 
-type Obavestenje struct {
-	ID      primitive.ObjectID         `bson:"_id,omitempty" json:"id"`
-	Zahtev  ZahtevZaSklapanjeSporazuma `bson:"zahtev,omitempty" json:"zahtev"`
-	Sadrzaj string                     `bson:"sadrzaj,omitempty" json:"sadrzaj"`
-	Datum   time.Time                  `bson:"datum,omitempty" json:"datum"`
-}
-
 type Poruka struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
 	KanalId    primitive.ObjectID `bson:"kanalId" json:"kanalId"`
