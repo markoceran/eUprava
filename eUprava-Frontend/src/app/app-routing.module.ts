@@ -10,6 +10,8 @@ import { ZahteviSklapanjeSporazumaComponent } from './components/tuzilastvo/zaht
 import { SporazumiComponent } from './components/tuzilastvo/sporazumi/sporazumi.component';
 import { KanaliComponent } from './components/tuzilastvo/kanali/kanali.component';
 import { PorukeComponent } from './components/tuzilastvo/poruke/poruke.component';
+import { KreirajKrivicnuPrijavuComponent } from './components/granicna-policija/kreiraj-krivicnu-prijavu/kreiraj-krivicnu-prijavu/kreiraj-krivicnu-prijavu.component';
+import { KreirajPrelazComponent } from './components/granicna-policija/kreiraj-prelaz/kreiraj-prelaz/kreiraj-prelaz.component';
 
 
 const routes: Routes = [
@@ -45,6 +47,14 @@ const routes: Routes = [
   {
     path: 'poruke/:kanalId',
     component: PorukeComponent
+  },
+  {
+    path: 'podnesiKrivicnuPrijavu',
+    component: KreirajKrivicnuPrijavuComponent
+  },
+  {
+    path: 'kreirajPrelaz',
+    component: KreirajPrelazComponent
   },
 
 ];

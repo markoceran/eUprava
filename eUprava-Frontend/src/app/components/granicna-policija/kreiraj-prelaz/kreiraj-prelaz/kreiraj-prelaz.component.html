@@ -1,0 +1,50 @@
+<div class="container">
+    <h2>Kreiraj Prelaz</h2>
+    <form [formGroup]="prelazForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="imePutnika">Ime Putnika</label>
+        <input id="imePutnika" type="text" formControlName="imePutnika" required>
+      </div>
+      <div class="form-group">
+        <label for="prezimePutnika">Prezime Putnika</label>
+        <input id="prezimePutnika" type="text" formControlName="prezimePutnika">
+      </div>
+      <div class="form-group">
+        <label for="JMBGPutnika">JMBG Putnika</label>
+        <input id="JMBGPutnika" type="text" formControlName="JMBGPutnika">
+      </div>
+      <div class="form-group">
+        <label for="brojLicneKartePutnika">Broj Lične Karte Putnika</label>
+        <input id="brojLicneKartePutnika" type="text" formControlName="brojLicneKartePutnika">
+      </div>
+      <div class="form-group">
+        <label for="brojPasosaPutnika">Broj Pasoša Putnika</label>
+        <input id="brojPasosaPutnika" type="text" formControlName="brojPasosaPutnika">
+      </div>
+      <div class="form-group">
+        <label for="drzavljanstvoPutnika">Državljanstvo Putnika</label>
+        <input id="drzavljanstvoPutnika" type="text" formControlName="drzavljanstvoPutnika">
+      </div>
+      <div class="form-group">
+        <label for="markaVozila">Marka Vozila</label>
+        <input id="markaVozila" type="text" formControlName="markaVozila">
+      </div>
+      <div class="form-group">
+        <label for="modelVozila">Model Vozila</label>
+        <input id="modelVozila" type="text" formControlName="modelVozila">
+      </div>
+      <div class="form-group">
+        <label for="svrhaPutovanja">Svrha Putovanja</label>
+        <input id="svrhaPutovanja" type="text" formControlName="svrhaPutovanja">
+      </div>
+      <div class="form-group">
+        <label for="odobren">Odobren</label>
+        <input id="odobren" type="checkbox" formControlName="odobren">
+      </div>
+      <div class="button-container">
+        <button type="button" (click)="cancel()">Odustani</button>
+        <button type="submit" [disabled]="!prelazForm.valid">Kreiraj</button>
+      </div>
+    </form>
+  </div>
+  
