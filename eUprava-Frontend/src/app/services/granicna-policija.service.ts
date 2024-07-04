@@ -15,8 +15,8 @@ export class GranicnaPolicijaService {
   constructor(private http: HttpClient) { }
 
   // Create Sumnjivo Lice
-  public createSumnjivoLice(id: string, sumnjivoLice: SumnjivoLice): Observable<any> {
-    return this.http.put<any>(`${environment.baseApiUrl}/${this.url}/sumnjivo-lice/new/${id}`, sumnjivoLice);
+  public createSumnjivoLice(prelazId: string, sumnjivoLice: any): Observable<any> {
+    return this.http.put<any>(`${environment.baseApiUrl}/${this.url}/sumnjivo-lice/new/${prelazId}`, sumnjivoLice);
   }
 
   // Create Prelaz

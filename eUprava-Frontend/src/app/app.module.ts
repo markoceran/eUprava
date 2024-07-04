@@ -36,6 +36,7 @@ import { PorukeComponent } from './components/tuzilastvo/poruke/poruke.component
 import { KreirajKanalComponent } from './components/tuzilastvo/kreiraj-kanal/kreiraj-kanal.component';
 import { KreirajKrivicnuPrijavuComponent } from './components/granicna-policija/kreiraj-krivicnu-prijavu/kreiraj-krivicnu-prijavu/kreiraj-krivicnu-prijavu.component';
 import { KreirajPrelazComponent } from './components/granicna-policija/kreiraj-prelaz/kreiraj-prelaz/kreiraj-prelaz.component';
+import { KreirajSumnjivoLiceComponent } from './components/granicna-policija/kreiraj-sumnjivo-lice/kreiraj-sumnjivo-lice/kreiraj-sumnjivo-lice.component';
 
 @NgModule({
   declarations: [
@@ -54,6 +55,7 @@ import { KreirajPrelazComponent } from './components/granicna-policija/kreiraj-p
     KreirajKanalComponent,
     KreirajKrivicnuPrijavuComponent,
     KreirajPrelazComponent,
+    KreirajSumnjivoLiceComponent,
    
   ],
   imports: [

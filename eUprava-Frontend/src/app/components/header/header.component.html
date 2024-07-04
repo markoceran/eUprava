@@ -15,6 +15,7 @@
       <a class="nav-link" *ngIf="isLoggedIn() && role === 'Policajac'" aria-pressed="true">Policajac</a>
       <a class="nav-link" *ngIf="isLoggedIn() && role === 'GranicniSluzbenik'" aria-pressed="true">GranicniSluzbenik</a>
       <a class="nav-link" *ngIf="isLoggedIn() && role === 'GranicniSluzbenik'" aria-pressed="true" routerLink="/podnesiKrivicnuPrijavu">Podnesi Krivicnu Prijavu</a>
+      <a class="nav-link" *ngIf="isLoggedIn() && role === 'GranicniSluzbenik'" aria-pressed="true" routerLink="/kreirajSumnjivoLice">Kreiraj sumnjivo lice</a>
       <a class="nav-link" *ngIf="isLoggedIn() && role === 'GranicniSluzbenik'" aria-pressed="true" routerLink="/kreirajPrelaz">Kreiraj prelaz</a>
       <a class="nav-link" *ngIf="isLoggedIn() && role === 'Istrazitelj'" aria-pressed="true">Istrazitelj</a>
       <a class="nav-link" *ngIf="isLoggedIn() && role === 'Sudija'" aria-pressed="true">Sudija</a>

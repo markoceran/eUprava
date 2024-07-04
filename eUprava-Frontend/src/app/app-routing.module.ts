@@ -12,6 +12,7 @@ import { KanaliComponent } from './components/tuzilastvo/kanali/kanali.component
 import { PorukeComponent } from './components/tuzilastvo/poruke/poruke.component';
 import { KreirajKrivicnuPrijavuComponent } from './components/granicna-policija/kreiraj-krivicnu-prijavu/kreiraj-krivicnu-prijavu/kreiraj-krivicnu-prijavu.component';
 import { KreirajPrelazComponent } from './components/granicna-policija/kreiraj-prelaz/kreiraj-prelaz/kreiraj-prelaz.component';
+import { KreirajSumnjivoLiceComponent } from './components/granicna-policija/kreiraj-sumnjivo-lice/kreiraj-sumnjivo-lice/kreiraj-sumnjivo-lice.component';
 
 
 const routes: Routes = [
@@ -55,6 +56,10 @@ const routes: Routes = [
   {
     path: 'kreirajPrelaz',
     component: KreirajPrelazComponent
+  },
+  {
+    path: 'kreirajSumnjivoLice',
+    component: KreirajSumnjivoLiceComponent
   },
 
 ];

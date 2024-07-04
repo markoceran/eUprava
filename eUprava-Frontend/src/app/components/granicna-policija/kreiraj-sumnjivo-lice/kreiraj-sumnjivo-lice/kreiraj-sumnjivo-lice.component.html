@@ -1,0 +1,22 @@
+<div class="container">
+    <h2>Kreiraj Sumnjivo lice</h2>
+    <form [formGroup]="sumnjivoLiceForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="opis">Opis</label>
+        <input id="opis" type="text" formControlName="opis" required>
+      </div>
+      <div class="form-group">
+        <label for="prelaz">Prelaz</label>
+        <select id="prelaz" formControlName="prelaz" required>
+          <option *ngFor="let prelaz of prelazi" [value]="prelaz.id">
+            {{ prelaz.imePutnika }} - {{ prelaz.datum | date:'dd.MM.yyyy' }}
+          </option>
+        </select>
+      </div>
+      <div class="button-container">
+        <button type="button" (click)="cancel()">Odustani</button>
+        <button type="submit" [disabled]="!sumnjivoLiceForm.valid">Kreiraj</button>
+      </div>
+    </form>
+  </div>
+  
