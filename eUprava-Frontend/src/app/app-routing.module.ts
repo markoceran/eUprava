@@ -13,6 +13,8 @@ import { PorukeComponent } from './components/tuzilastvo/poruke/poruke.component
 import { KreirajKrivicnuPrijavuComponent } from './components/granicna-policija/kreiraj-krivicnu-prijavu/kreiraj-krivicnu-prijavu/kreiraj-krivicnu-prijavu.component';
 import { KreirajPrelazComponent } from './components/granicna-policija/kreiraj-prelaz/kreiraj-prelaz/kreiraj-prelaz.component';
 import { KreirajSumnjivoLiceComponent } from './components/granicna-policija/kreiraj-sumnjivo-lice/kreiraj-sumnjivo-lice/kreiraj-sumnjivo-lice.component';
+import { PrelaziComponent } from './components/granicna-policija/prelazi/prelazi/prelazi.component';
+import { SumnjivaLicaComponent } from './components/granicna-policija/sumnjiva-lica/sumnjiva-lica/sumnjiva-lica.component';
 
 
 const routes: Routes = [
@@ -60,6 +62,14 @@ const routes: Routes = [
   {
     path: 'kreirajSumnjivoLice',
     component: KreirajSumnjivoLiceComponent
+  },
+  {
+    path: 'prelazi',
+    component: PrelaziComponent
+  },
+  {
+    path: 'sumnjivaLica',
+    component: SumnjivaLicaComponent
   },
 
 ];

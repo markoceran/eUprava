@@ -1,0 +1,12 @@
+<div class="sumnjiva-lica-container">
+    <mat-card *ngFor="let sumnjivoLice of sumnjivaLica" class="sumnjivo-lice-card">
+      <mat-card-header>
+        <mat-card-title>ID: {{ sumnjivoLice.id }}</mat-card-title>
+        <mat-card-subtitle *ngIf="sumnjivoLice.Prelaz">Prelaz ID: {{ sumnjivoLice.Prelaz.id }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p><strong>Opis:</strong> {{ sumnjivoLice.opis }}</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  
