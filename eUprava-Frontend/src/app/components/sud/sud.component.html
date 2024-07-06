@@ -1,0 +1,43 @@
+<app-header></app-header>
+<div class="sud-container">
+    <h2 class="sud-header">Predmeti</h2>
+  
+    <div *ngFor="let predmet of predmeti" class="predmet-details">
+      <h3>Opis: {{ predmet.opis }}</h3>
+      <h3>Datum: {{ predmet.datum | date }}</h3>
+      <h3>IdSudije: {{ predmet.idSudije }}</h3>
+      <Button type="button" (click)="selectPredmet(predmet.id!)">Zakazi</Button>
+      <hr>
+      <h3 *ngIf="predmet.id==selectedId">Zakazi termin:</h3>
+      <form *ngIf="predmet.id==selectedId" (ngSubmit)="zakaziTermin(predmet.id!)" class="predmet-form">
+        <label for="datum">Datum i vrijeme</label>
+        <input type="datetime" id="datum" [(ngModel)]="noviTermin.datum" name="datum" required>
+  
+        <label for="adresa">Adresa</label>
+        <input type="text" id="adresa" [(ngModel)]="noviTermin.adresa" name="adresa" required>
+  
+        <label for="prostorija">Prostorija</label>
+        <input type="text" id="prostorija" [(ngModel)]="noviTermin.prostorija" name="prostorija" required>
+    
+        <button type="submit">Potvrdi</button>
+      </form>
+    </div>
+  <br>
+    <!-- <h3 class="sud-header">Create New Predmet</h3>
+    <form (ngSubmit)="createPredmet()" class="predmet-form">
+      <label for="opis">Opis</label>
+      <input type="text" id="opis" [(ngModel)]="newPredmet.opis" name="opis" required>
+  
+      <button type="submit">Create</button>
+    </form> -->
+  </div>
+
+  <div class="sud-container">
+    <h2 class="sud-header">Termini</h2>
+  
+    <div *ngFor="let presuda of presude" class="predmet-details">
+      <h3>Opis: {{ presuda.opis }}</h3>
+      <h3>Datum: {{ presuda.datum | date }}</h3>
+      <h3>IdSudije: {{ presuda.idSudije }}</h3>
+    </div>
+  </div>

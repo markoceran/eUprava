@@ -15,6 +15,8 @@ import { KreirajPrelazComponent } from './components/granicna-policija/kreiraj-p
 import { KreirajSumnjivoLiceComponent } from './components/granicna-policija/kreiraj-sumnjivo-lice/kreiraj-sumnjivo-lice/kreiraj-sumnjivo-lice.component';
 import { PrelaziComponent } from './components/granicna-policija/prelazi/prelazi/prelazi.component';
 import { SumnjivaLicaComponent } from './components/granicna-policija/sumnjiva-lica/sumnjiva-lica/sumnjiva-lica.component';
+import { SudComponent } from './components/sud/sud.component';
+import { TerminiComponent } from './components/sud/termini/termini.component';
 
 
 const routes: Routes = [
@@ -71,7 +73,14 @@ const routes: Routes = [
     path: 'sumnjivaLica',
     component: SumnjivaLicaComponent
   },
-
+  {
+    path: 'sud',
+    component: SudComponent
+  },
+  {
+    path: 'termini',
+    component: TerminiComponent
+  },
 ];
 
 @NgModule({

@@ -39,6 +39,8 @@ import { KreirajPrelazComponent } from './components/granicna-policija/kreiraj-p
 import { KreirajSumnjivoLiceComponent } from './components/granicna-policija/kreiraj-sumnjivo-lice/kreiraj-sumnjivo-lice/kreiraj-sumnjivo-lice.component';
 import { PrelaziComponent } from './components/granicna-policija/prelazi/prelazi/prelazi.component';
 import { SumnjivaLicaComponent } from './components/granicna-policija/sumnjiva-lica/sumnjiva-lica/sumnjiva-lica.component';
+import { SudComponent } from './components/sud/sud.component';
+import { TerminiComponent } from './components/sud/termini/termini.component';
 
 @NgModule({
   declarations: [
@@ -60,6 +62,8 @@ import { SumnjivaLicaComponent } from './components/granicna-policija/sumnjiva-l
     KreirajSumnjivoLiceComponent,
     PrelaziComponent,
     SumnjivaLicaComponent,
+    SudComponent,
+    TerminiComponent,
    
   ],
   imports: [
