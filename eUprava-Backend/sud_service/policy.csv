@@ -1,3 +1,9 @@
 p, Sudija , /predmeti, POST
 p, Sudija, /predmeti/zahtjevi, POST
 p, , /predmeti, GET
+p, , /termini, POST
+p, , /termini, GET
+p, , /termini/*, GET
+p, , /presude, GET
+p, , /presude, POST
+p, , /presude/*, GET

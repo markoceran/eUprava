@@ -115,6 +115,28 @@ func main() {
 	dodajPredmetePoZahtjevima := router.Methods(http.MethodPost).Subrouter()
 	dodajPredmetePoZahtjevima.HandleFunc("/predmeti/zahtjevi", sudHandler.DodajPredmetePoZahtjevima)
 
+	//TERMINI
+	dobaviTermine := router.Methods(http.MethodGet).Subrouter()
+	dobaviTermine.HandleFunc("/termini", sudHandler.DobaviTermine)
+
+	kreirajTermin := router.Methods(http.MethodPost).Subrouter()
+	kreirajTermin.HandleFunc("/termini", sudHandler.DodajTermin)
+	kreirajTermin.Use(sudHandler.TerminMiddlewareDeserialization)
+
+	dobaviTerminPoId := router.Methods(http.MethodGet).Subrouter()
+	dobaviTerminPoId.HandleFunc("/termini/{id}", sudHandler.DobaviTerminPoId)
+
+	//PRESUDE
+	dobaviPresude := router.Methods(http.MethodGet).Subrouter()
+	dobaviPresude.HandleFunc("/presude", sudHandler.DobaviPresude)
+
+	kreirajPresudu := router.Methods(http.MethodPost).Subrouter()
+	kreirajPresudu.HandleFunc("/presude", sudHandler.DodajPresudu)
+	kreirajPresudu.Use(sudHandler.PresudaMiddlewareDeserialization)
+
+	dobaviPresuduPoId := router.Methods(http.MethodGet).Subrouter()
+	dobaviPresuduPoId.HandleFunc("/presude/{id}", sudHandler.DobaviPresuduPoId)
+
 	//Initialize the server
 	server := http.Server{
 		Addr:         ":" + port,

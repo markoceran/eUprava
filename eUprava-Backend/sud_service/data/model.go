@@ -54,6 +54,7 @@ type TerminSudjenja struct {
 	Prostorija string             `bson:"prostorija,omitempty" json:"prostorija"`
 	Predmet    Predmet            `bson:"predmet,omitempty" json:"predmet"`
 }
+type TerminiSudjenja []*TerminSudjenja
 
 type Presuda struct {
 	ID             primitive.ObjectID `bson:"_id,omitempty" json:"id"`
@@ -63,12 +64,34 @@ type Presuda struct {
 	IdSudije       primitive.ObjectID `bson:"idSudije,omitempty" json:"idSudije"`
 }
 
+type Presude []*Presuda
+
 func (o *Predmeti) ToJSON(w io.Writer) error {
 	e := json.NewEncoder(w)
 	return e.Encode(o)
 }
 
 func (o *Predmeti) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
+
+func (o *TerminiSudjenja) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *TerminiSudjenja) FromJSON(r io.Reader) error {
+	d := json.NewDecoder(r)
+	return d.Decode(o)
+}
+
+func (o *Presude) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(o)
+}
+
+func (o *Presude) FromJSON(r io.Reader) error {
 	d := json.NewDecoder(r)
 	return d.Decode(o)
 }
