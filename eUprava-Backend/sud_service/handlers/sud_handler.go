@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"sud_service/client"
 	"sud_service/data"
+	"sud_service/helper"
 	"time"
 )
 
@@ -92,9 +93,21 @@ func (h *SudHandler) DodajPredmet(writer http.ResponseWriter, req *http.Request)
 		span.SetStatus(codes.Error, "Pogresan format zahteva")
 		return
 	}
+	predmet.Datum = primitive.NewDateTimeFromTime(time.Now())
 
-	err := h.sudRepo.DodajPredmet(ctx, predmet)
+	claims := helper.ExtractClaims(req)
+	logovaniKorisnikId, err := primitive.ObjectIDFromHex(claims["id"])
 	if err != nil {
+		span.SetStatus(codes.Error, "Id korisnika nije procitan")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Id korisnika nije procitan"))
+		return
+	}
+	predmet.IdSudije = logovaniKorisnikId
+
+	err = h.sudRepo.DodajPredmet(ctx, predmet)
+	if err != nil {
+
 		writer.WriteHeader(http.StatusBadRequest)
 		writer.Write([]byte("Greska prilikom dodavanja predmeta"))
 		span.SetStatus(codes.Error, "Greska prilikom dodavanja predmeta")
@@ -108,10 +121,22 @@ func (h *SudHandler) DodajPredmetePoZahtjevima(writer http.ResponseWriter, req *
 	ctx, span := h.tracer.Start(req.Context(), "SudHandler.DodajPredmet")
 	defer span.End()
 
-	zahtjevi, err := h.tuzilastvoClient.DobaviAktivneZahtjeve(req.Context())
+	bearer := req.Header.Get("Authorization")
+	log.Printf(bearer)
+
+	zahtjevi, err := h.tuzilastvoClient.DobaviAktivneZahtjeve(req.Context(), bearer)
+
 	if err != nil {
 		log.Printf("Greska prilikom dodavanja zahtjeva: %v", err)
 		http.Error(writer, "Greska prilikom dodavanja zahtjeva", http.StatusServiceUnavailable)
+	}
+	claims := helper.ExtractClaims(req)
+	logovaniKorisnikId, err := primitive.ObjectIDFromHex(claims["id"])
+	if err != nil {
+		span.SetStatus(codes.Error, "Id korisnika nije procitan")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Id korisnika nije procitan"))
+		return
 	}
 
 	for _, zahtjev := range zahtjevi {
@@ -119,9 +144,10 @@ func (h *SudHandler) DodajPredmetePoZahtjevima(writer http.ResponseWriter, req *
 		currentDateTime := primitive.NewDateTimeFromTime(currentTime)
 
 		predmet := &data.Predmet{
-			Opis:   zahtjev.Opis,
-			Datum:  currentDateTime,
-			Zahtev: *zahtjev,
+			Opis:     zahtjev.Opis,
+			Datum:    currentDateTime,
+			Zahtev:   *zahtjev,
+			IdSudije: logovaniKorisnikId,
 		}
 
 		err = h.sudRepo.DodajPredmet(ctx, predmet)
@@ -132,8 +158,6 @@ func (h *SudHandler) DodajPredmetePoZahtjevima(writer http.ResponseWriter, req *
 			return
 		}
 	}
-
-	writer.WriteHeader(http.StatusOK)
 }
 
 func (s *SudHandler) MiddlewareDeserialization(next http.Handler) http.Handler {
