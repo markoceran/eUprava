@@ -1,0 +1,22 @@
+<app-header></app-header>
+<div class="sud-container">
+    <h2 class="sud-header">Termini</h2>
+  
+    <div *ngFor="let termin of termini" class="predmet-details">
+      <h3>Adresa: {{ termin.adresa }}</h3>
+      <h3>Prostorija: {{ termin.prostorija }}</h3>
+      <h3>Datum: {{ termin.datum | date }}</h3>
+      <Button type="button" (click)="selectTermin(termin.id!)">Presuda</Button>
+      <hr>
+      <h3 *ngIf="termin.id==selectedId">Donesi presudu:</h3>
+      <form *ngIf="termin.id==selectedId" (ngSubmit)="kreirajPresudu(termin.id!)" class="predmet-form">
+        <label for="datum">Datum i vrijeme</label>
+        <input type="datetime" id="datum" [(ngModel)]="novaPresuda.datum" name="datum" required>
+  
+        <label for="adresa">Opis</label>
+        <input type="text" id="opis" [(ngModel)]="novaPresuda.opis" name="opis" required>
+  
+        <button type="submit">Potvrdi</button>
+      </form>
+    </div>
+  </div>

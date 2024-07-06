@@ -25,7 +25,7 @@ func NewTuzilastvoClient(client *http.Client, address string, cb *gobreaker.Circ
 	}
 }
 
-func (ac TuzilastvoClient) DobaviAktivneZahtjeve(ctx context.Context) (data.Zahtevi, error) {
+func (ac TuzilastvoClient) DobaviAktivneZahtjeve(ctx context.Context, bearerToken string) (data.Zahtevi, error) {
 	var timeout time.Duration
 	deadline, reqHasDeadline := ctx.Deadline()
 	if reqHasDeadline {
@@ -33,10 +33,14 @@ func (ac TuzilastvoClient) DobaviAktivneZahtjeve(ctx context.Context) (data.Zaht
 	}
 
 	cbResp, err := ac.cb.Execute(func() (interface{}, error) {
+
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, ac.address+"/dobaviZahteveZaSudskiPostupak", nil)
 		if err != nil {
 			return nil, err
 		}
+
+		req.Header.Set("Authorization", bearerToken)
+
 		resp, err := ac.client.Do(req)
 		if err != nil {
 			return nil, err

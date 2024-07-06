@@ -17,6 +17,8 @@ import (
 const (
 	DATABASE           = "sud"
 	COLLECTIONPREDMETI = "predmeti"
+	COLLECTIONTERMINI  = "termini"
+	COLLECTIONPRESUDE  = "presude"
 )
 
 type SudRepo struct {
@@ -133,6 +135,114 @@ func decodePredmeti(cursor *mongo.Cursor) (predmeti Predmeti, err error) {
 			return
 		}
 		predmeti = append(predmeti, &predmet)
+	}
+	err = cursor.Err()
+	return
+}
+
+//TERMINI
+
+func (sr *SudRepo) DodajTermin(ctx context.Context, termin *TerminSudjenja) error {
+	rezultat, err := sr.table.Collection(COLLECTIONTERMINI).InsertOne(context.TODO(), termin)
+
+	if err != nil {
+		log.Println("Greska prilikom dodavanja termina")
+		return err
+	}
+	termin.ID = rezultat.InsertedID.(primitive.ObjectID)
+	return nil
+}
+
+func (sr *SudRepo) DobaviTermine(ctx context.Context) (TerminiSudjenja, error) {
+	filter := bson.D{{}}
+	return sr.filterTermini(ctx, filter)
+}
+
+func (sr *SudRepo) filterTermini(ctx context.Context, filter interface{}) (TerminiSudjenja, error) {
+	cursor, err := sr.table.Collection(COLLECTIONTERMINI).Find(ctx, filter)
+	if err != nil {
+		log.Println("Ne postoji termin za dati filter")
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	return decodeTermini(cursor)
+}
+
+func (sr *SudRepo) DobaviTerminPoID(ctx context.Context, id primitive.ObjectID) (*TerminSudjenja, error) {
+	filter := bson.D{{"_id", id}}
+	var termin TerminSudjenja
+
+	err := sr.table.Collection(COLLECTIONTERMINI).FindOne(ctx, filter).Decode(&termin)
+	if err != nil {
+		return nil, err
+	}
+
+	return &termin, nil
+}
+
+func decodeTermini(cursor *mongo.Cursor) (termini TerminiSudjenja, err error) {
+	for cursor.Next(context.TODO()) {
+		var termin TerminSudjenja
+		err = cursor.Decode(&termin)
+		if err != nil {
+			return
+		}
+		termini = append(termini, &termin)
+	}
+	err = cursor.Err()
+	return
+}
+
+//PRESUDE
+
+func (sr *SudRepo) DodajPresudu(ctx context.Context, presuda *Presuda) error {
+	rezultat, err := sr.table.Collection(COLLECTIONPRESUDE).InsertOne(context.TODO(), presuda)
+
+	if err != nil {
+		log.Println("Greska prilikom dodavanja presude")
+		return err
+	}
+	presuda.ID = rezultat.InsertedID.(primitive.ObjectID)
+	return nil
+}
+
+func (sr *SudRepo) DobaviPresude(ctx context.Context) (Presude, error) {
+	filter := bson.D{{}}
+	return sr.filterPresude(ctx, filter)
+}
+
+func (sr *SudRepo) filterPresude(ctx context.Context, filter interface{}) (Presude, error) {
+	cursor, err := sr.table.Collection(COLLECTIONPRESUDE).Find(ctx, filter)
+	if err != nil {
+		log.Println("Ne postoji presuda za dati filter")
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	return decodePresude(cursor)
+}
+
+func (sr *SudRepo) DobaviPresuduPoID(ctx context.Context, id primitive.ObjectID) (*Presuda, error) {
+	filter := bson.D{{"_id", id}}
+	var presuda Presuda
+
+	err := sr.table.Collection(COLLECTIONPRESUDE).FindOne(ctx, filter).Decode(&presuda)
+	if err != nil {
+		return nil, err
+	}
+
+	return &presuda, nil
+}
+
+func decodePresude(cursor *mongo.Cursor) (presude Presude, err error) {
+	for cursor.Next(context.TODO()) {
+		var presuda Presuda
+		err = cursor.Decode(&presuda)
+		if err != nil {
+			return
+		}
+		presude = append(presude, &presuda)
 	}
 	err = cursor.Err()
 	return
