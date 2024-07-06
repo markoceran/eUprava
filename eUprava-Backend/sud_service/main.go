@@ -120,7 +120,7 @@ func main() {
 	dobaviTermine.HandleFunc("/termini", sudHandler.DobaviTermine)
 
 	kreirajTermin := router.Methods(http.MethodPost).Subrouter()
-	kreirajTermin.HandleFunc("/termini", sudHandler.DodajTermin)
+	kreirajTermin.HandleFunc("/termini/{id}", sudHandler.DodajTermin)
 	kreirajTermin.Use(sudHandler.TerminMiddlewareDeserialization)
 
 	dobaviTerminPoId := router.Methods(http.MethodGet).Subrouter()
@@ -131,7 +131,7 @@ func main() {
 	dobaviPresude.HandleFunc("/presude", sudHandler.DobaviPresude)
 
 	kreirajPresudu := router.Methods(http.MethodPost).Subrouter()
-	kreirajPresudu.HandleFunc("/presude", sudHandler.DodajPresudu)
+	kreirajPresudu.HandleFunc("/presude/{id}", sudHandler.DodajPresudu)
 	kreirajPresudu.Use(sudHandler.PresudaMiddlewareDeserialization)
 
 	dobaviPresuduPoId := router.Methods(http.MethodGet).Subrouter()

@@ -243,7 +243,25 @@ func (h *SudHandler) DodajTermin(writer http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	err := h.sudRepo.DodajTermin(ctx, termin)
+	vars := mux.Vars(req)
+	predmetId, err := primitive.ObjectIDFromHex(vars["id"])
+	if err != nil {
+		span.SetStatus(codes.Error, "Greska")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Greska"))
+		return
+	}
+
+	predmet, err := h.sudRepo.DobaviPredmetPoID(ctx, predmetId)
+	if err != nil || predmet == nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Greska prilikom dodavanja termina"))
+		span.SetStatus(codes.Error, "Greska prilikom dodavanja termina")
+		return
+	}
+	termin.Predmet = *predmet
+
+	err = h.sudRepo.DodajTermin(ctx, termin)
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
 		writer.Write([]byte("Greska prilikom dodavanja termina"))
@@ -337,7 +355,35 @@ func (h *SudHandler) DodajPresudu(writer http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	err := h.sudRepo.DodajPresudu(ctx, presuda)
+	vars := mux.Vars(req)
+	terminId, err := primitive.ObjectIDFromHex(vars["id"])
+	if err != nil {
+		span.SetStatus(codes.Error, "Greska")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Greska"))
+		return
+	}
+
+	termin, err := h.sudRepo.DobaviTerminPoID(ctx, terminId)
+	if err != nil || termin == nil {
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Greska prilikom dodavanja termina"))
+		span.SetStatus(codes.Error, "Greska prilikom dodavanja termina")
+		return
+	}
+	presuda.TerminSudjenja = *termin
+
+	claims := helper.ExtractClaims(req)
+	logovaniKorisnikId, err := primitive.ObjectIDFromHex(claims["id"])
+	if err != nil {
+		span.SetStatus(codes.Error, "Id korisnika nije procitan")
+		writer.WriteHeader(http.StatusBadRequest)
+		writer.Write([]byte("Id korisnika nije procitan"))
+		return
+	}
+	presuda.IdSudije = logovaniKorisnikId
+
+	err = h.sudRepo.DodajPresudu(ctx, presuda)
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
 		writer.Write([]byte("Greska prilikom dodavanja presude"))
