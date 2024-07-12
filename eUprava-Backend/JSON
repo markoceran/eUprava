@@ -1,0 +1,109 @@
+DODAVANJE KORISNIKA
+{
+    "ime": "marko",
+    "prezime": "ceran",
+    "korisnickoIme": "marko",
+    "lozinka": "123",
+    "rola": "Gradjanin"
+}
+
+LOGIN
+{
+    "korisnickoIme":"marko",
+    "lozinka":"123"
+}
+
+LICNA KARTA
+{
+  "dokument": {
+    "ime": "ttt",
+    "prezime": "ttt",
+    "datumRodjenja": "2005-05-05T00:00:00Z",
+    "mestoRodjenja": "test"
+  },
+  "pol": "Zenski"
+}
+
+VOZACKA
+{
+  "dokument": {
+    "ime": "vesna",
+    "prezime": "mikic",
+    "datumRodjenja": "2002-06-06T00:00:00Z",
+    "mestoRodjenja": "Novi Sad"
+  },
+  "kategorija": "A"
+}
+
+SAOBRACAJNA
+{
+  "markaVozila": "fiat",
+  "modelVozila": "punto"
+}
+
+PASOS
+{
+  "dokument": {
+    "ime": "pera",
+    "prezime": "peric",
+    "datumRodjenja": "2002-06-06T00:00:00Z",
+    "mestoRodjenja": "Novi Sad"
+  },
+  "pol": "Muski",
+  "drzavljanstvo": "Srbija"
+}
+
+VALIDACIJA DOKUMENATA
+{
+  "jmbg": "2409903764987",
+  "ime": "marko",
+  "prezime": "ceran",
+  "brojLicneKarte": "073315976",
+  "brojPasosa": "933325433",
+  "drzavljanstvo": "Srbija"
+}
+
+
+PREDMET DODAVANJE:
+POST http://localhost:8004/predmeti
+{
+	"opis": "Opis predmeta",
+	"datum": "2002-06-06T00:00:00Z"
+}
+
+PREDMETI DOBAVLJANJE:
+GET http://localhost:8004/predmeti
+
+PREDMETI DOBAVLJANJE PO ID:
+GET http://localhost:8004/predmeti/{id}
+
+ZAHTEV ZA SUDSKI POSTUPAK
+{
+    "opis":"test"
+}
+
+ZAHTEV ZA SKLAPANJE SPORAZUMA
+{
+    "opis":"ccc",
+    "uslovi":"ccc",
+    "kazna":"ccc"
+}
+
+PRELAZ
+{
+  "imePutnika": "mika",
+  "prezimePutnika": "mikic",
+  "JMBGPutnika": "6409894460932",
+  "brojLicneKartePutnika": "030542033",
+  "brojPasosaPutnika": "018442037",
+  "drzavljanstvoPutnika": "srbija",
+  "markaVozila": "Toyota",
+  "modelVozila": "Camry",
+  "svrhaPutovanja": "posao",
+  "odobren": true
+}
+
+KRIVICNA PRIJAVA I SUMNJIVO LICE
+{
+    "opis":"ttt"
+}

@@ -1,0 +1,18 @@
+<app-header></app-header>
+<div class="container">
+  <h2>Kanali za poruke</h2>
+  <div *ngIf="kanali == null" class="no-data">No data available</div>
+  
+  <div class="krivicna-list">
+    <button *ngIf="rolaLogovanogKorisnika === 'Istrazitelj'" class="btn btn-primary" style="margin: auto; margin-bottom: 30px;" (click)="openKreirajKanalDialog()">Kreiraj kanal</button>
+    <div *ngFor="let kanal of kanali" class="krivicna-card" (click)="otvoriStranicuZaPoruke(kanal.id)">
+        <div class="card-header">
+            <h3>Naziv: {{ kanal.ime }}</h3>
+        </div>
+        <div class="card-body">
+            <p>Opis: {{ kanal.opis }}</p>
+            <p>Kreiran: {{ kanal.kreiran | date }}</p>
+        </div>
+    </div>
+  </div>
+</div>

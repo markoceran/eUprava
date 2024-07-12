@@ -1,0 +1,74 @@
+.main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .background {
+    background-color: #5a7cdb89;
+  }
+  
+  section {
+    margin-bottom: 60px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.135);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.562);
+    border-radius: 8px;
+  }
+  
+  h1, h2, h3 {
+    color: #34495e;
+    font-weight: 700;
+  }
+  
+  .intro img {
+    margin-top: 20px;
+    border-radius: 8px;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .intro img:hover {
+    transform: scale(0.98);
+  }
+  
+  .feature-item {
+    background-color: #247af320;
+    border: 0px;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  }
+  
+  .feature-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .benefits ul, .user-guide ol {
+    padding-left: 0;
+    font-size: 1em;
+  }
+  
+  .list-group-item {
+    background: transparent;
+  }
+  
+  .testimonial-item {
+    background: #247af321;
+    padding: 20px;
+    border-radius: 8px;
+    font-size: 1em;
+    text-align: center;
+  }
+  
+  .testimonial-text {
+    font-style: italic;
+  }
+  
+  .carousel-inner {
+    margin-top: 20px;
+  }
+  
+  .contact p {
+    margin: 5px 0;
+    font-size: 1em;
+  }
+  

@@ -1,0 +1,192 @@
+version: '3.8'
+
+services:
+
+  api_gateway:
+    build:
+      context: ./api_gateway/
+      dockerfile: Dockerfile
+    container_name: api_gateway
+    restart: on-failure
+    ports:
+      - ${GATEWAY_PORT}:${GATEWAY_PORT}
+    depends_on:
+      - tuzilastvo_service
+      - auth_service
+      - sud_service
+    networks:
+      - network
+
+  auth_service:
+    image: auth_service
+    container_name: auth_service
+    build:
+      context: .
+      dockerfile: ./auth_service/Dockerfile
+    restart: always
+    ports:
+      - ${AUTH_SERVICE_PORT}:${AUTH_SERVICE_PORT}
+    environment:
+      AUTH_DB_HOST: ${AUTH_DB_HOST}
+      AUTH_DB_PORT: ${AUTH_DB_PORT}
+      AUTH_SERVICE_PORT: ${AUTH_SERVICE_PORT}
+      SECRET_KEY: ${SECRET_KEY}
+      JAEGER_ADDRESS: ${JAEGER_ADDRESS}
+    depends_on:
+      auth_db:
+        condition: service_started
+    networks:
+      - network
+
+
+  tuzilastvo_service:
+    image: tuzilastvo_service
+    container_name: tuzilastvo_service
+    build:
+      context: .
+      dockerfile: ./tuzilastvo_service/Dockerfile
+    restart: always
+    ports:
+      - ${TUZILASTVO_SERVICE_PORT}:${TUZILASTVO_SERVICE_PORT}
+    environment:
+      TUZILASTVO_DB_HOST: ${TUZILASTVO_DB_HOST}
+      TUZILASTVO_DB_PORT: ${TUZILASTVO_DB_PORT}
+      TUZILASTVO_SERVICE_PORT: ${TUZILASTVO_SERVICE_PORT}
+      GRANICNA_POLICIJA_SERVICE_HOST: ${GRANICNA_POLICIJA_SERVICE_HOST}
+      GRANICNA_POLICIJA_SERVICE_PORT: ${GRANICNA_POLICIJA_SERVICE_PORT}
+      MUP_SERVICE_PORT: ${MUP_SERVICE_PORT}
+      MUP_SERVICE_HOST: ${MUP_SERVICE_HOST}
+      SECRET_KEY: ${SECRET_KEY}
+      JAEGER_ADDRESS: ${JAEGER_ADDRESS}
+    depends_on:
+      tuzilastvo_db:
+        condition: service_started
+    networks:
+      - network
+
+
+  mup_service:
+    image: mup_service
+    container_name: mup_service
+    build:
+      context: .
+      dockerfile: ./mup_service/Dockerfile
+    restart: always
+    ports:
+      - ${MUP_SERVICE_PORT}:${MUP_SERVICE_PORT}
+    environment:
+      MUP_DB_HOST: ${MUP_DB_HOST}
+      MUP_DB_PORT: ${MUP_DB_PORT}
+      MUP_SERVICE_PORT: ${MUP_SERVICE_PORT}
+      AUTH_SERVICE_PORT: ${AUTH_SERVICE_PORT}
+      AUTH_SERVICE_HOST: ${AUTH_SERVICE_HOST}
+      GRANICNA_POLICIJA_SERVICE_HOST: ${GRANICNA_POLICIJA_SERVICE_HOST}
+      GRANICNA_POLICIJA_SERVICE_PORT: ${GRANICNA_POLICIJA_SERVICE_PORT}
+      SECRET_KEY: ${SECRET_KEY}
+      JAEGER_ADDRESS: ${JAEGER_ADDRESS}
+    depends_on:
+      mup_db:
+        condition: service_started
+    networks:
+      - network
+
+
+  granicna_policija_service:
+    image: granicna_policija_service
+    container_name: granicna_policija_service
+    build:
+      context: .
+      dockerfile: ./granicna_policija_service/Dockerfile
+    restart: always
+    ports:
+      - ${GRANICNA_POLICIJA_SERVICE_PORT}:${GRANICNA_POLICIJA_SERVICE_PORT}
+    environment:
+      GRANICNA_POLICIJA_DB_HOST: ${GRANICNA_POLICIJA_DB_HOST}
+      GRANICNA_POLICIJA_DB_PORT: ${GRANICNA_POLICIJA_DB_PORT}
+      GRANICNA_POLICIJA_SERVICE_PORT: ${GRANICNA_POLICIJA_SERVICE_PORT}
+      MUP_SERVICE_PORT: ${MUP_SERVICE_PORT}
+      MUP_SERVICE_HOST: ${MUP_SERVICE_HOST}
+      AUTH_SERVICE_PORT: ${AUTH_SERVICE_PORT}
+      AUTH_SERVICE_HOST: ${AUTH_SERVICE_HOST}
+      SECRET_KEY: ${SECRET_KEY}
+      JAEGER_ADDRESS: ${JAEGER_ADDRESS}
+    depends_on:
+      granicna_policija_db:
+        condition: service_started
+    networks:
+      - network
+
+  sud_service:
+    image: sud_service
+    container_name: sud_service
+    build:
+      context: .
+      dockerfile: ./sud_service/Dockerfile
+    restart: always
+    ports:
+      - ${SUD_SERVICE_PORT}:${SUD_SERVICE_PORT}
+    environment:
+      SUD_DB_HOST: ${SUD_DB_HOST}
+      SUD_DB_PORT: ${SUD_DB_PORT}
+      SUD_SERVICE_PORT: ${SUD_SERVICE_PORT}
+      AUTH_SERVICE_PORT: ${AUTH_SERVICE_PORT}
+      AUTH_SERVICE_HOST: ${AUTH_SERVICE_HOST}
+      TUZILASTVO_SERVICE_HOST: ${TUZILASTVO_SERVICE_HOST}
+      TUZILASTVO_SERVICE_PORT: ${TUZILASTVO_SERVICE_PORT}
+
+      SECRET_KEY: ${SECRET_KEY}
+      JAEGER_ADDRESS: ${JAEGER_ADDRESS}
+    depends_on:
+      sud_db:
+        condition: service_started
+    networks:
+      - network
+
+
+  tuzilastvo_db:
+    image: mongo
+    container_name: tuzilastvo_db
+    restart: on-failure
+    networks:
+      - network
+
+  mup_db:
+    image: mongo
+    container_name: mup_db
+    restart: on-failure
+    networks:
+      - network
+
+
+  granicna_policija_db:
+    image: mongo
+    container_name: granicna_policija_db
+    restart: on-failure
+    networks:
+      - network
+
+  auth_db:
+    image: mongo
+    container_name: auth_db
+    restart: on-failure
+    networks:
+      - network
+
+  sud_db:
+    image: mongo
+    container_name: sud_db
+    restart: on-failure
+    networks:
+      - network
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "6831:6831/udp"
+      - "16686:16686"
+    networks:
+      - network
+
+networks:
+  network:
+    driver: bridge

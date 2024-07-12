@@ -1,0 +1,20 @@
+<div class="prelazi-container">
+    <mat-card *ngFor="let prelaz of prelazi" class="prelaz-card">
+      <mat-card-header>
+        <mat-card-title>{{ prelaz.imePutnika }} {{ prelaz.prezimePutnika }}</mat-card-title>
+        <mat-card-subtitle>{{ prelaz.datum | date }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p><strong>JMBG:</strong> {{ prelaz.JMBGPutnika }}</p>
+        <p><strong>Broj Lične Karte:</strong> {{ prelaz.brojLicneKartePutnika }}</p>
+        <p><strong>Broj Pasoša:</strong> {{ prelaz.brojPasosaPutnika }}</p>
+        <p><strong>Državljanstvo:</strong> {{ prelaz.drzavljanstvoPutnika }}</p>
+        <p><strong>Marka Vozila:</strong> {{ prelaz.markaVozila }}</p>
+        <p><strong>Model Vozila:</strong> {{ prelaz.modelVozila }}</p>
+        <p><strong>Svrha Putovanja:</strong> {{ prelaz.svrhaPutovanja }}</p>
+        <p><strong>Odobren:</strong> {{ prelaz.odobren ? 'Da' : 'Ne' }}</p>
+      </mat-card-content>
+
+    </mat-card>
+  </div>
+  

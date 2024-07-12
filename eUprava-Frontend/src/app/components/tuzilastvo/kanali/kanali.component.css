@@ -1,0 +1,121 @@
+.container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #fafafa;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center; /* Ensure all text within container is centered */
+  }
+  
+  h2 {
+    margin-bottom: 20px;
+    color: #6d6d6d;
+    font-size: 26px;
+    display: inline-block;
+    padding-bottom: 35px;
+  }
+  
+  
+  .no-data {
+    text-align: center;
+    color: #888;
+    font-size: 18px;
+    margin-top: 20px;
+  }
+  
+  .krivicna-list {
+    display: grid;
+    gap: 20px;
+    width: 40%;
+    margin: auto;
+  }
+  
+  .krivicna-card {
+    background: #4b41d557;
+    border: 2px solid #00124e47;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .krivicna-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  .card-header {
+    border-bottom: 2px solid #34004e45;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+  }
+  
+  .card-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #00124e;
+  }
+  
+  .card-header p {
+    margin: 5px 0 0;
+    color: #666;
+  }
+  
+  .card-body h4 {
+    margin-top: 25px;
+    color: #00124e;
+    font-size: 18px;
+    border-bottom: 1px solid #00124e29;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .card-body p {
+    margin: 5px 0;
+    color: #555;
+  }
+  
+  .card-body p strong {
+    color: #666;
+  }
+  
+  .button-container {
+    display: block;
+    margin-top: 20px;
+  }
+  
+  
+  .green-button,
+  .orange-button,
+  .red-button {
+    background-color: transparent;
+    border: 2px solid;
+    border-radius: 5px;
+    padding: 8px 16px;
+    transition: background-color 0.3s;
+  }
+  
+  .green-button {
+    border-color: #4caf50;
+    color: #226523;
+  }
+  
+  .orange-button {
+    margin-top: 10px;
+    border-color: #ff9800;
+    color: #b06a01;
+  }
+  
+  .red-button {
+    border-color: #f44336;
+    color: #f44336;
+  }
+  
+  .green-button:hover,
+  .orange-button:hover,
+  .red-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }

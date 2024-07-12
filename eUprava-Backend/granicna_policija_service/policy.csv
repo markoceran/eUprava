@@ -1,0 +1,6 @@
+p, , /sumnjivo-lice/new/*, PUT
+p, , /prelaz/new, POST
+p, , /krivicna-prijava/new/*, PUT
+p, , /sumnjivo-lice/all, GET
+p, , /prelaz/all, GET
+p, , /krivicna-prijava/all, GET

@@ -1,0 +1,38 @@
+<app-header></app-header>
+<div class="container">
+    <h2>Sporazumi</h2>
+  <div *ngIf="sporazumi == null" class="no-data">No data available</div>
+  <div class="krivicna-list">
+    <div *ngFor="let sporazum of sporazumi" class="krivicna-card">
+        <div class="card-header">
+            <h3>Datum: {{ sporazum.datum | date }}</h3>
+        </div>
+        <div class="card-body">
+            <h4>Zahtev za sklapanje sporazuma</h4>
+            <p><strong>Datum:</strong> {{ sporazum.zahtev?.datum }}</p>
+            <p><strong>Opis:</strong> {{ sporazum.zahtev?.opis }}</p>
+            <p><strong>Uslovi:</strong> {{ sporazum.zahtev?.uslovi }}</p>
+            <p><strong>Kazna:</strong> {{ sporazum.zahtev?.kazna }}</p>
+            <p><strong>Id Tuzioca:</strong> {{ sporazum.zahtev?.idTuzioca }}</p>
+            <p><strong>Prihvacen:</strong> {{ sporazum.zahtev?.prihvacen }}</p>
+            <h4>Krivična prijava</h4>
+            <p><strong>Datum:</strong> {{ sporazum.zahtev?.krivicnaPrijava?.datum | date }}</p>
+            <p><strong>Opis:</strong> {{ sporazum.zahtev?.krivicnaPrijava?.opis }}</p>
+            <h4>Prelaz</h4>
+            <p><strong>Datum:</strong> {{ sporazum.zahtev?.krivicnaPrijava?.prelaz?.datum | date }}</p>
+            <p><strong>Ime:</strong> {{ sporazum.zahtev?.krivicnaPrijava?.prelaz?.imePutnika }}</p>
+            <p><strong>Prezime:</strong> {{ sporazum.zahtev?.krivicnaPrijava?.prelaz?.prezimePutnika }}</p>
+            <p><strong>JMBG:</strong> {{ sporazum.zahtev?.krivicnaPrijava?.prelaz?.JMBGPutnika }}</p>
+            <p><strong>Broj Lične Karte:</strong> {{ sporazum.zahtev?.krivicnaPrijava?.prelaz?.brojLicneKartePutnika }}</p>
+            <p><strong>Broj Pasoša:</strong> {{ sporazum.zahtev?.krivicnaPrijava?.prelaz?.brojPasosaPutnika }}</p>
+            <p><strong>Državljanstvo:</strong> {{ sporazum.zahtev?.krivicnaPrijava?.prelaz?.drzavljanstvoPutnika }}</p>
+            <p><strong>Marka Vozila:</strong> {{ sporazum.zahtev?.krivicnaPrijava?.prelaz?.markaVozila }}</p>
+            <p><strong>Model Vozila:</strong> {{ sporazum.zahtev?.krivicnaPrijava?.prelaz?.modelVozila }}</p>
+            <p><strong>Svrha Putovanja:</strong> {{ sporazum.zahtev?.krivicnaPrijava?.prelaz?.svrhaPutovanja }}</p>
+            <p><strong>Odobren:</strong> {{ sporazum.zahtev?.krivicnaPrijava?.prelaz?.odobren ? 'Da' : 'Ne' }}</p>
+        </div>
+    </div>
+  </div>
+</div>
+
+

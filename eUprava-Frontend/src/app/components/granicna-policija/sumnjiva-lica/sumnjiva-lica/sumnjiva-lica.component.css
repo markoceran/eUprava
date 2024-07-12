@@ -1,0 +1,11 @@
+.sumnjiva-lica-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 16px;
+  }
+  
+  .sumnjivo-lice-card {
+    width: calc(33% - 16px);
+  }
+  

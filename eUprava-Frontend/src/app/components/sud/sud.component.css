@@ -1,0 +1,53 @@
+/* sud.component.css */
+.sud-container {
+    background-color: #f0f0f0; /* Light gray background */
+    padding: 20px;
+    border-radius: 5px;
+    margin: 20px;
+  }
+  
+  .sud-header {
+    color: #333; /* Dark gray text */
+    font-size: 24px;
+  }
+  
+  .predmet-details {
+    background-color: #fff; /* White background */
+    padding: 15px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  }
+  
+  .predmet-form {
+    margin-top: 20px;
+  }
+  
+  .predmet-form label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .predmet-form input[type="text"],
+  .predmet-form input[type="datetime"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box;
+  }
+  
+  button {
+    background-color: #4CAF50; /* Green submit button */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #45a049; /* Darker green on hover */
+  }
+  

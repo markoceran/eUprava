@@ -1,0 +1,19 @@
+p, Tuzioc , /kreirajZahtevZaSudskiPostupak/*, PUT
+p, Tuzioc, /dobaviZahteveZaSudskiPostupak, GET
+p, Sudija, /dobaviZahteveZaSudskiPostupak, GET
+p, Tuzioc , /kreirajZahtevZaSklapanjeSporazuma/*, PUT
+p, Tuzioc, /dobaviZahteveZaSklapanjeSporazuma, GET
+p, Tuzioc, /kreirajSporazum, POST
+p, Tuzioc, /dobaviSporazume, GET
+p, Tuzioc, /krivicnePrijave, GET
+p, Istrazitelj, /krivicnePrijave, GET
+p, Gradjanin, /dobaviZahteveZaSklapanjeSporazumaPoGradjaninu/*, GET
+p, Gradjanin , /prihvatiZahtevZaSklapanjeSporazuma/*, PUT
+p, Gradjanin , /odbijZahtevZaSklapanjeSporazuma/*, PUT
+p, Istrazitelj , /kreirajKanal, POST
+p, Istrazitelj , /dobaviKanale, GET
+p, Policajac , /dobaviKanale, GET
+p, Istrazitelj , /kreirajPoruku/*, PUT
+p, Policajac , /kreirajPoruku/*, PUT
+p, Istrazitelj , /dobaviPorukePoKanalu/*, GET
+p, Policajac , /dobaviPorukePoKanalu/*, GET
